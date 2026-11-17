@@ -1,7 +1,7 @@
 using System.Text.Json.Nodes;
 using PyCompat;
 
-namespace EvCharging.Tests;
+namespace EvChargerBooking.Tests;
 
 /// <summary>The form filled over DevTools in a real headless Edge, against a local mock shaped like a Microsoft Form
 /// (tests/mock-form/form.html), in a throwaway profile. <b>The real Forms URL is never opened</b>: even a preview

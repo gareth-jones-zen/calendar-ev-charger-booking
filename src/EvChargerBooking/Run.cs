@@ -6,7 +6,7 @@ using PyCompat;
 using ReviewQueue;
 using WinBackground;
 
-namespace EvCharging;
+namespace EvChargerBooking;
 
 /// <summary>The work plan or calendar couldn't be read, so nothing was decided.</summary>
 public sealed class CalendarError(string message, Exception? inner = null) : Exception(message, inner);
@@ -322,10 +322,10 @@ public static class Runner
     private static Completed DefaultHook(IReadOnlyList<string> command, string stdin, string workingDirectory) =>
         Shell.Run(command[0], command.Skip(1), TimeSpan.FromSeconds(300), stdin, workingDirectory, utf8: true);
 
-    /// <summary>The run lock's name: ev-charging-run-{key(config.path)}, win-background's key with Python's
+    /// <summary>The run lock's name: ev-charger-booking-run-{key(config.path)}, win-background's key with Python's
     /// lower-casing, so a Python and a .NET run of the same settings exclude each other.</summary>
     public static string LockName(string configPath) =>
-        "ev-charging-run-" + Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(PyStr.Lower(configPath))))[..16];
+        "ev-charger-booking-run-" + Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(PyStr.Lower(configPath))))[..16];
 
     /// <summary>locked_run(): one run at a time per settings file (two at once could request the same day twice), then
     /// the hook and the review queue, unless it's a dry run or approvals only.</summary>

@@ -1,6 +1,6 @@
 using PyCompat;
 
-namespace EvCharging.Tests;
+namespace EvChargerBooking.Tests;
 
 /// <summary>1.2.0: a base settings file, time_zone, and the car's details in [car].</summary>
 public sealed class BaseSettingsTests : IDisposable
@@ -38,7 +38,7 @@ public sealed class BaseSettingsTests : IDisposable
         }
     }
 
-    private Settings Parse(string text) => Settings.Parse(text, Path.Combine(dir, "ev-charging.toml"), _ => null);
+    private Settings Parse(string text) => Settings.Parse(text, Path.Combine(dir, "ev-charger-booking.toml"), _ => null);
 
     [Fact]
     public void Shared_settings_and_paths_come_from_the_base()

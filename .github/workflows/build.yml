@@ -13,25 +13,25 @@ jobs:
       # The shared libraries are a sibling checkout (background-tools-lib, public), as on the laptop.
       - uses: actions/checkout@v5
         with:
-          path: ev-charging
+          path: ev-charger-booking
       - uses: actions/checkout@v5
         with:
           repository: gareth-jones-zen/background-tools-lib
           path: background-tools-lib
       - uses: actions/setup-dotnet@v5
         with:
-          global-json-file: ev-charging/global.json
+          global-json-file: ev-charger-booking/global.json
       # The tests include the form filled in a real headless Edge, against the local mock only.
       - name: Build and test
-        working-directory: ev-charging
+        working-directory: ev-charger-booking
         run: dotnet test -c Release
       - name: Publish (Native AOT)
-        working-directory: ev-charging
+        working-directory: ev-charger-booking
         run: |
-          dotnet publish src/EvCharging.Console -c Release -r win-x64 -o out
-          dotnet publish src/EvCharging.Background -c Release -r win-x64 -o out
+          dotnet publish src/EvChargerBooking.Console -c Release -r win-x64 -o out
+          dotnet publish src/EvChargerBooking.Background -c Release -r win-x64 -o out
           Get-ChildItem out/*.exe | Format-Table Name, Length
       - uses: actions/upload-artifact@v4
         with:
-          name: ev-charging-win-x64
-          path: ev-charging/out/*.exe
+          name: ev-charger-booking-win-x64
+          path: ev-charger-booking/out/*.exe

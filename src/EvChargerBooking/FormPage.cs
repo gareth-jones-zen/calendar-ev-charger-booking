@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Text.Json;
 using EdgeDevTools;
 
-namespace EvCharging;
+namespace EvChargerBooking;
 
 /// <summary>
 /// The handful of things the form needs from a page, as DevTools commands: go to an address, wait for a selector,
@@ -106,7 +106,7 @@ public sealed class FormPage
                     var kind = MicrosoftSignIn.Classify(probe);
                     if (MicrosoftSignIn.NeedsAPerson(kind))
                         throw new FormError($"The form needs a sign-in ({MicrosoftSignIn.Describe(kind)}), and nobody is at this "
-                                            + "window. Run `ev-charging sign-in` at a console.");
+                                            + "window. Run `ev-charger-booking sign-in` at a console.");
                 }
             }
             catch (CdpException)

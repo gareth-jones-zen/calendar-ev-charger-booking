@@ -5,7 +5,7 @@ using System.Text.Json.Nodes;
 using M365Graph;
 using PyCompat;
 
-namespace EvCharging;
+namespace EvChargerBooking;
 
 /// <summary>The few Graph calls the run makes. Tests and parity checks give a fake with the same methods, as the
 /// Python tests did.</summary>
@@ -62,7 +62,7 @@ public sealed class M365GraphClient(GraphClient client) : IGraph
     /// <summary>Calendars.ReadWrite (to rename the morning entry) and Mail.Read (the replies).</summary>
     public static readonly IReadOnlyList<string> Scopes = ["Calendars.ReadWrite", "Mail.Read"];
 
-    public const string SignInHint = "At a console, run: ev-charging sign-in";
+    public const string SignInHint = "At a console, run: ev-charger-booking sign-in";
 
     public GraphClient Client { get; } = client;
 

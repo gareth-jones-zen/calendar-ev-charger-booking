@@ -4,7 +4,7 @@ using System.Text.Json.Nodes;
 using PyCompat;
 using WinBackground;
 
-namespace EvCharging;
+namespace EvChargerBooking;
 
 /// <summary>Everything the command line touches outside itself, so tests can give it fakes.</summary>
 public sealed class CliHost
@@ -36,30 +36,30 @@ public sealed class CliHost
     public Func<DateTime> Now { get; init; } = () => DateTime.Now;
 }
 
-/// <summary>ev-charging: book an office EV charging slot when your calendar asks for one. The same commands, options,
+/// <summary>ev-charger-booking: book an office EV charging slot when your calendar asks for one. The same commands, options,
 /// texts and exit codes as the Python version (argparse's help and errors included): 0; 1 for a run that couldn't read
 /// the calendar, needs a sign-in or timed out (and anything unexpected); 2 for no settings file, settings that can't be
 /// used, a form that couldn't be filled, or a usage error.</summary>
 public static class Cli
 {
-    public const string Prog = "ev-charging";
+    public const string Prog = "ev-charger-booking";
 
-    private const string Usage = "usage: ev-charging [-h] [--version] [--config CONFIG]\n"
-        + "                   {config,sign-in,book,run,approvals,status,autostart} ...";
+    private const string Usage = "usage: ev-charger-booking [-h] [--version] [--config CONFIG]\n"
+        + "                          {config,sign-in,book,run,approvals,status,autostart} ...";
 
     private const string Help = """
-        ev-charging: book an office EV charging slot when your calendar asks for one.
+        ev-charger-booking: book an office EV charging slot when your calendar asks for one.
 
-        ev-charging config                  create the settings file (if missing) and say where it is
-        ev-charging sign-in                 sign in to Microsoft, then to the form in the tool's Edge window
-        ev-charging book 2026-11-26         fill in the form and screenshot it; submits nothing
-        ev-charging book 2026-11-26 --submit    and submit it (a request, approved by email)
-        ev-charging run --dry-run           what the daily run would book, ask and rename; changes nothing
-        ev-charging run                     book what the calendar asks for, apply approvals, list questions
-        ev-charging run --hook              then pass the report to the settings' after_run command
-        ev-charging approvals [--dry-run]   only apply the approval emails to the calendar
-        ev-charging status                  requests from today on, and whether each is approved
-        ev-charging autostart on            run daily at daily_at and at logon, and now (off, status)
+        ev-charger-booking config                  create the settings file (if missing) and say where it is
+        ev-charger-booking sign-in                 sign in to Microsoft, then to the form in the tool's Edge window
+        ev-charger-booking book 2026-11-26         fill in the form and screenshot it; submits nothing
+        ev-charger-booking book 2026-11-26 --submit    and submit it (a request, approved by email)
+        ev-charger-booking run --dry-run           what the daily run would book, ask and rename; changes nothing
+        ev-charger-booking run                     book what the calendar asks for, apply approvals, list questions
+        ev-charger-booking run --hook              then pass the report to the settings' after_run command
+        ev-charger-booking approvals [--dry-run]   only apply the approval emails to the calendar
+        ev-charger-booking status                  requests from today on, and whether each is approved
+        ev-charger-booking autostart on            run daily at daily_at and at logon, and now (off, status)
 
         positional arguments:
           {config,sign-in,book,run,approvals,status,autostart}
@@ -85,13 +85,13 @@ public static class Cli
 
     private static readonly Dictionary<string, string> SubUsages = new()
     {
-        ["config"] = "usage: ev-charging config [-h]",
-        ["sign-in"] = "usage: ev-charging sign-in [-h] [--graph-only]",
-        ["book"] = "usage: ev-charging book [-h] [--submit] [--start START] [--headless] [--force]\n                        date",
-        ["run"] = "usage: ev-charging run [-h] [--dry-run] [--json] [--hook] [--scheduled]",
-        ["approvals"] = "usage: ev-charging approvals [-h] [--dry-run] [--json]",
-        ["status"] = "usage: ev-charging status [-h]",
-        ["autostart"] = "usage: ev-charging autostart [-h] {on,off,status}",
+        ["config"] = "usage: ev-charger-booking config [-h]",
+        ["sign-in"] = "usage: ev-charger-booking sign-in [-h] [--graph-only]",
+        ["book"] = "usage: ev-charger-booking book [-h] [--submit] [--start START] [--headless] [--force]\n                        date",
+        ["run"] = "usage: ev-charger-booking run [-h] [--dry-run] [--json] [--hook] [--scheduled]",
+        ["approvals"] = "usage: ev-charger-booking approvals [-h] [--dry-run] [--json]",
+        ["status"] = "usage: ev-charger-booking status [-h]",
+        ["autostart"] = "usage: ev-charger-booking autostart [-h] {on,off,status}",
     };
 
     private static readonly Dictionary<string, string> SubHelps = new()
@@ -218,7 +218,7 @@ public static class Cli
             log($"FAILED: {PyStr.Head(error.Message, 300)}");
             if (args.Scheduled)
             {
-                var title = error is M365Graph.SignInNeededException ? "ev-charging needs a sign-in"
+                var title = error is M365Graph.SignInNeededException ? "ev-charger-booking needs a sign-in"
                     : error is CalendarError ? "EV booking: couldn't read your calendar"
                     : "EV booking failed";
                 host.Notify(title, [PyStr.Head(error.Message, 200)]);

@@ -1,7 +1,7 @@
 using System.Text.Json.Nodes;
 using PyCompat;
 
-namespace EvCharging;
+namespace EvChargerBooking;
 
 /// <summary>
 /// What's been requested and approved, so no day is ever requested twice. A port of state.py, written byte for byte

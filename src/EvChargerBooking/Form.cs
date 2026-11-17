@@ -5,7 +5,7 @@ using Tomlyn;
 using Tomlyn.Model;
 using WinBackground;
 
-namespace EvCharging;
+namespace EvChargerBooking;
 
 /// <summary>The form couldn't be filled (or the car details are missing): what Python's FormError was.</summary>
 public sealed class FormError(string message) : Exception(message);
@@ -15,7 +15,7 @@ public sealed class FormError(string message) : Exception(message);
 /// DevTools pipe (background-tools-lib's EdgeDevTools) rather than Playwright.
 /// <para>Nothing else can submit a Forms response: not Graph, not Power Automate, not the M365 connector. So this
 /// drives Edge in its own profile (edge_profile), never your everyday browser. You sign in to Microsoft in that
-/// profile once (`ev-charging sign-in`); the session persists, so later runs need nothing from you. It never handles a
+/// profile once (`ev-charger-booking sign-in`); the session persists, so later runs need nothing from you. It never handles a
 /// password.</para>
 /// <para><b>A submission is a request, not a booking</b>: someone approves it, and says so by email. And the Submit
 /// click goes through <see cref="SubmitDoor"/>, which refuses unless the command line asked for a submission.</para>
@@ -136,7 +136,7 @@ public static class Form
         {
             await page.GoAsync(settings.Form.Url).ConfigureAwait(false);
             if (!await page.WaitForQuestionsAsync(Question, options.LoadTimeout, headless ? options.SignInAccount ?? settings.LoginHint : null, headless).ConfigureAwait(false))
-                throw new FormError("The form didn't load. Is the Microsoft sign-in still valid? Run `ev-charging sign-in` at a console.");
+                throw new FormError("The form didn't load. Is the Microsoft sign-in still valid? Run `ev-charger-booking sign-in` at a console.");
             var count = await page.CountAsync(Question).ConfigureAwait(false);
             if (settings.Form.Questions != 0 && count != settings.Form.Questions)
                 throw new FormError($"Expected {settings.Form.Questions} questions, found {count}. The form has changed; not filling it.");

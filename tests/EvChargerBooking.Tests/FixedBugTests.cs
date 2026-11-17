@@ -1,9 +1,9 @@
 using System.Text.Json.Nodes;
-using EvCharging.Parity;
+using EvChargerBooking.Parity;
 using PyCompat;
 using WinBackground;
 
-namespace EvCharging.Tests;
+namespace EvChargerBooking.Tests;
 
 /// <summary>The regression tests for the five bugs fixed in Python 0.1.1 (FixedBugTests in tests/test_ev_charging.py),
 /// by name where there's a counterpart.</summary>
@@ -51,7 +51,7 @@ public sealed class FixedBugTests : IDisposable
     {
         var output = new StringWriter();
         var error = new StringWriter();
-        var code = EvCharging.Cli.Run(["--config", Config.Path, .. argv], new CliHost
+        var code = EvChargerBooking.Cli.Run(["--config", Config.Path, .. argv], new CliHost
         {
             Out = output,
             Err = error,
@@ -75,7 +75,7 @@ public sealed class FixedBugTests : IDisposable
     public void test_scheduled_run_notifies_sign_in_needed()
     {
         var notes = new List<string>();
-        var code = EvCharging.Cli.Run(["--config", Config.Path, "run", "--scheduled"], new CliHost
+        var code = EvChargerBooking.Cli.Run(["--config", Config.Path, "run", "--scheduled"], new CliHost
         {
             Out = new StringWriter(),
             Err = new StringWriter(),
@@ -85,13 +85,13 @@ public sealed class FixedBugTests : IDisposable
             Now = () => new DateTime(2026, 11, 12, 8, 0, 0),
         });
         Assert.Equal(1, code);
-        Assert.Equal(["ev-charging needs a sign-in"], notes);
+        Assert.Equal(["ev-charger-booking needs a sign-in"], notes);
     }
 
     private sealed class SignedOutGraph : IGraph
     {
         public JsonObject Get(string url, IReadOnlyDictionary<string, string> headers) =>
-            throw new M365Graph.SignInNeededException("No usable sign-in. At a console, run: ev-charging sign-in");
+            throw new M365Graph.SignInNeededException("No usable sign-in. At a console, run: ev-charger-booking sign-in");
 
         public JsonObject Send(string method, string url, JsonObject? body, IReadOnlyDictionary<string, string> headers) =>
             throw new InvalidOperationException("no writes");

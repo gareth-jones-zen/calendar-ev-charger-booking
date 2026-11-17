@@ -1,11 +1,11 @@
-# Plan: ev-charging ported to .NET 11 Native AOT, with Edge over DevTools
+# Plan: ev-charger-booking ported to .NET 11 Native AOT, with Edge over DevTools
 
 *13 Nov 2026, written before the port, overnight and unattended (branch `dotnet`; the Python was tagged `v0.1.0`, and the port follows its 0.1.1 fixes, 13 Nov).
 Phases 1 to 4 are done overnight; 5 to 7 wait for GJ.*
 
 ## Does this change the earlier recommendation?
 
-The browser-tools assessment (12 Nov) said **don't port ev-charging**: the form needs a browser, Playwright for .NET
+The browser-tools assessment (12 Nov) said **don't port ev-charger-booking**: the form needs a browser, Playwright for .NET
 brings Node and can't be AOT-compiled, so a port would be 110 to 180 MB and gain nothing. Since then the Edge
 DevTools route was proven (EdgeDevTools and PeopleFirstClient in background-tools-lib, a 6 MB AOT exe, byte-identical
 People First reads). Filling a form is more than a sign-in, but every step the Python takes (go to a page, wait for a
@@ -22,17 +22,17 @@ commands. So:
 ## The goal
 
 **The same decisions, questions, log lines, calendar renames and state file as the Python version, byte for byte**,
-from the same settings file, state file, car file, log, Edge profile, task name (`ev-charging run`) and run lock
-(`ev-charging-run-<key>`, with Python's lower-casing), so either version can replace the other with nothing moved.
+from the same settings file, state file, car file, log, Edge profile, task name (`ev-charger-booking run`) and run lock
+(`ev-charger-booking-run-<key>`, with Python's lower-casing), so either version can replace the other with nothing moved.
 The form is filled through background-tools-lib's EdgeDevTools (Edge over its DevTools pipe), not Playwright.
 
 ## Names
 
 | | Python | .NET |
 |---|---|---|
-| Command | `python -m ev_charging` (pythonw for the task) | `ev-charging.exe`; `ev-charging-background.exe` (no window) for the task |
-| Installed to | pip, editable from `~/source/repos/ev-charging` | unzip to `%LOCALAPPDATA%\Programs\ev-charging\` |
-| Settings, state, car file, log, screenshots, Edge profile, task, run lock | as set in `tools/ev-charging.toml` | unchanged: the same files and names |
+| Command | `python -m ev_charging` (pythonw for the task) | `ev-charger-booking.exe`; `ev-charger-booking-background.exe` (no window) for the task |
+| Installed to | pip, editable from `~/source/repos/ev-charger-booking` | unzip to `%LOCALAPPDATA%\Programs\ev-charger-booking\` |
+| Settings, state, car file, log, screenshots, Edge profile, task, run lock | as set in `tools/ev-charger-booking.toml` | unchanged: the same files and names |
 
 ## Module map
 
@@ -69,25 +69,25 @@ The form is filled through background-tools-lib's EdgeDevTools (Edge over its De
 
 ## Phases
 
-1. **Set-up (done):** fresh clone at `~/source/repos/ev-charging-dotnet`, tag `v0.1.0`, branch `dotnet`.
+1. **Set-up (done):** fresh clone at `~/source/repos/ev-charger-booking-dotnet`, tag `v0.1.0`, branch `dotnet`.
 2. **Oracle:** scenarios and misc goldens from the Python.
 3. **Port:** module by module against the goldens; CI builds, tests and publishes both exes.
 4. **Checks (read-only):** above.
 5. **Supervised form check (GJ, at the console):**
-   1. `ev-charging.exe --config <a copy of the settings> book <a day> --start 08:00` (no `--submit`): it fills GJ's
+   1. `ev-charger-booking.exe --config <a copy of the settings> book <a day> --start 08:00` (no `--submit`): it fills GJ's
       real form in a visible window and screenshots it. This overwrites his Forms draft, which is harmless;
    2. compare the screenshot with the Python one for the same day;
    3. then, for a day GJ actually wants, `book <day> --submit` from the .NET exe, and check Facilities' approval
       arrives and the next run renames the Travel block.
-6. **Shadow (GJ):** a week of `ev-charging.exe run --dry-run --json` beside the Python task, on its own copy of the
+6. **Shadow (GJ):** a week of `ev-charger-booking.exe run --dry-run --json` beside the Python task, on its own copy of the
    settings pointing at a copy of the state file, comparing with the Python log each morning.
 7. **Switch (GJ):**
-   1. `! python -m ev_charging --config tools/ev-charging.toml autostart off`;
-   2. unzip the build to `%LOCALAPPDATA%\Programs\ev-charging\`;
-   3. `! "%LOCALAPPDATA%\Programs\ev-charging\ev-charging.exe" --config tools/ev-charging.toml autostart on`;
+   1. `! python -m ev_charging --config tools/ev-charger-booking.toml autostart off`;
+   2. unzip the build to `%LOCALAPPDATA%\Programs\ev-charger-booking\`;
+   3. `! "%LOCALAPPDATA%\Programs\ev-charger-booking\ev-charger-booking.exe" --config tools/ev-charger-booking.toml autostart on`;
    4. `after_run` stays `["python", "ev_charging_hook.py"]` (the EA hook is Python either way);
    5. one EA commit: CLAUDE.md's "EV charging bookings" section and the toml's comments;
-   6. **rollback:** `ev-charging autostart off`, then the Python `autostart on`. Nothing else moves.
+   6. **rollback:** `ev-charger-booking autostart off`, then the Python `autostart on`. Nothing else moves.
 
 ## Decisions taken overnight (GJ's to overrule)
 
@@ -116,26 +116,26 @@ The form is filled through background-tools-lib's EdgeDevTools (Edge over its De
 
 Resumed at 07:25 after a Windows Update restart killed the first agent at 02:27 (the port was uncommitted then).
 
-- **Built:** `ev-charging.exe` and `ev-charging-background.exe`, Native AOT, about 11 MB each, no AOT warnings.
+- **Built:** `ev-charger-booking.exe` and `ev-charger-booking-background.exe`, Native AOT, about 11 MB each, no AOT warnings.
   CI (`.github/workflows/build.yml`) builds, runs the tests (the mock-form tests in a real headless Edge), publishes
   both exes and runs the AOT parity runner on the goldens.
 - **Tests (45):** the 28 Python tests by name; the 400 oracle scenarios; 876 settings, template, rename, URL, body
   text, label, hook and status goldens; argparse's 24 texts and exit codes; door and lock tests; six tests filling the
   local mock form over DevTools (every field kind, the picker quirk, trusted input only, preview, a refusing door, a
   changed form, a missing option, a busy profile).
-- **Parity through the AOT runner (`tests/parity/Program.cs`, `ev-charging-parity.exe`):**
+- **Parity through the AOT runner (`tests/parity/Program.cs`, `ev-charger-booking-parity.exe`):**
   - goldens: 400 of 400 scenarios, 876 of 876 misc, 24 of 24 CLI (3 invalid-pattern messages worded differently, row 1
     below);
   - **20,000 generated scenarios** (seeds 20261113 and 777): all identical. Ten failed at first only because the
     *oracle's* `os.replace` hit a transient access denied (antivirus on the temp files); rerun in Python, all ten match.
     The same transient failure hit .NET's swap too, until the retry (row 10);
   - `status` on a copy of the real state file: byte-identical with Python's;
-  - lock names for GJ's settings: the run lock is Python's (`ev-charging-run-…`), and the profile lock is the same
+  - lock names for GJ's settings: the run lock is Python's (`ev-charger-booking-run-…`), and the profile lock is the same
     for this tool's spelling of `m365-edge-profile` and teams-transcripts'.
 - **Live, read-only:** deferred while Microsoft's partial outage lasts (Graph 502 on the work plan and calendar views
   from 08:00 to 08:20, and the live Python run failed the same way at 07:19 and 08:01). `tests/parity` has what's
-  needed: `ev-charging-parity record` (GETs through the fence on a cache copy), `oracle.py replay` and
-  `ev-charging-parity replay`, then `run --dry-run` from both command lines on settings copies.
+  needed: `ev-charger-booking-parity record` (GETs through the fence on a cache copy), `oracle.py replay` and
+  `ev-charger-booking-parity replay`, then `run --dry-run` from both command lines on settings copies.
 - **The form:** proven against the local mock only. **The real Forms URL has never been opened** and nothing was
   submitted. Phase 5 (GJ at the console) is the first time the real form is filled by the .NET exe.
 
@@ -156,12 +156,12 @@ Resumed at 07:25 after a Windows Update restart killed the first agent at 02:27 
 
 ### Python bugs found: fixed in 0.1.1 (13 Nov 2026, GJ approved), and the port follows
 
-All five were fixed in the Python (`ev-charging` 0.1.1, `d9fe571` on `main`) and the same fixes made here, so parity
+All five were fixed in the Python (`ev-charger-booking` 0.1.1, `d9fe571` on `main`) and the same fixes made here, so parity
 holds with the fixed Python.
 
 | # | Bug (0.1.0) | Fix (both) |
 |---|---|---|
-| 1 | A sign-in failure during planning was wrapped as CalendarError, so "needs a sign-in" never showed | `plan()` lets SignInNeeded through; a scheduled run notifies "ev-charging needs a sign-in" |
+| 1 | A sign-in failure during planning was wrapped as CalendarError, so "needs a sign-in" never showed | `plan()` lets SignInNeeded through; a scheduled run notifies "ev-charger-booking needs a sign-in" |
 | 2 | `record_submission` sat outside `_book`'s try: a transient `os.replace` failure after a real submit left the day unrecorded, so the next run requested it again | **The day is recorded before the form is submitted**, and taken off again only if it wasn't sent. If the record can't be written, nothing is submitted (a failed booking and a question). If a failed submit can't be taken off, the day stays marked (never retried by itself) and the question says so. The swap is retried 5 times. `book --submit` does the same |
 | 3 | `apply_approvals` returned early on any error, dropping approvals already read | Saves what was read (not on a dry run), keeps the questions found so far, then the error question |
 | 4 | A car file that's a JSON list (any non-object) crashed the run | A FormError naming the file, so the booking fails and is raised as a question |

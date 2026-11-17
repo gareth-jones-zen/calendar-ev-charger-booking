@@ -10,7 +10,7 @@
     <Using Include="Xunit" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\EvCharging\EvCharging.csproj" />
+    <ProjectReference Include="..\..\src\EvChargerBooking\EvChargerBooking.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Shared\*.cs" Link="Shared\%(Filename)%(Extension)" />

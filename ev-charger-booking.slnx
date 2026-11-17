@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="src/EvChargerBooking/EvChargerBooking.csproj" />
+  <Project Path="src/EvChargerBooking.Console/EvChargerBooking.Console.csproj" />
+  <Project Path="src/EvChargerBooking.Background/EvChargerBooking.Background.csproj" />
+  <Project Path="tests/EvChargerBooking.Tests/EvChargerBooking.Tests.csproj" />
+
+</Solution>

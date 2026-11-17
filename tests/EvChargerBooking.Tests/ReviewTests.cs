@@ -1,9 +1,9 @@
 using System.Text.Json.Nodes;
 using PyCompat;
-using EvCharging.Parity;
+using EvChargerBooking.Parity;
 using ReviewQueue;
 
-namespace EvCharging.Tests;
+namespace EvChargerBooking.Tests;
 
 /// <summary>[review]: the questions queued exactly as the Python after_run hook queued them for the same report
 /// (Golden/review.json: the hook run on each report against a seeded queue, the items it left, added times dropped),

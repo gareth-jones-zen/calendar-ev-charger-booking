@@ -1,4 +1,4 @@
-# ev-charging
+# ev-charger-booking
 
 Books an office EV charging slot for you when your Outlook calendar asks for one, and puts the charge point you're given into your calendar.
 
@@ -33,17 +33,17 @@ With `work_plan = ""` the work plan isn't read, and every day whose entry asks i
 
 Windows (x64) with Microsoft Edge, which Windows has; nothing else.
 
-1. Download `ev-charging-<version>-win-x64.zip` from [Releases](https://github.com/gareth-jones-zen/ev-charging/releases).
-2. Unzip it to a folder that will stay put, such as `%LOCALAPPDATA%\Programs\ev-charging`. The scheduled task (`autostart`) runs the program from there.
+1. Download `ev-charger-booking-<version>-win-x64.zip` from [Releases](https://github.com/gareth-jones-zen/ev-charger-booking/releases).
+2. Unzip it to a folder that will stay put, such as `%LOCALAPPDATA%\Programs\ev-charger-booking`. The scheduled task (`autostart`) runs the program from there.
 3. Run the commands below from that folder, or add it to your `PATH`.
 
-It holds two programs: `ev-charging.exe`, for a console, and `ev-charging-background.exe`, the same program with no
+It holds two programs: `ev-charger-booking.exe`, for a console, and `ev-charger-booking-background.exe`, the same program with no
 window, which the daily task runs. It drives your installed Edge directly, so there's no browser to download.
 
 ## Getting started
 
 ```
-ev-charging config     # create the settings file and say where it is
+ev-charger-booking config     # create the settings file and say where it is
 ```
 
 **1. Fill in the settings file** (below). The parts specific to your workplace are the form's address and questions, and who sends the approvals. If a colleague already uses it, copy their `[form]` and `[approvals]` sections.
@@ -58,7 +58,7 @@ registration = "YOUR REG"     # {car_registration}
 additional_information = ""   # any other key is used as it's named
 ```
 
-Or keep them in a file of their own, `car_file` (default `%LOCALAPPDATA%\ev-charging\car.json`), if your settings file is somewhere shared:
+Or keep them in a file of their own, `car_file` (default `%LOCALAPPDATA%\ev-charger-booking\car.json`), if your settings file is somewhere shared:
 
 ```json
 {"car_make": "Make", "car_model": "Model", "car_registration": "YOUR REG", "additional_information": ""}
@@ -69,7 +69,7 @@ Or keep them in a file of their own, `car_file` (default `%LOCALAPPDATA%\ev-char
 **3. Sign in**, once:
 
 ```
-ev-charging sign-in
+ev-charger-booking sign-in
 ```
 
 A browser opens to sign in to Microsoft (for your calendar and mail), then an Edge window opens on the form: sign in there if it asks. It closes once the form loads. That Edge profile is the tool's own (`edge_profile`), never your everyday browser, and its sign-in persists.
@@ -77,30 +77,30 @@ A browser opens to sign in to Microsoft (for your calendar and mail), then an Ed
 **4. Try it:**
 
 ```
-ev-charging book 2026-11-26          # fill in the form and screenshot it; submits nothing
-ev-charging run --dry-run            # what the daily run would book, ask and rename
+ev-charger-booking book 2026-11-26          # fill in the form and screenshot it; submits nothing
+ev-charger-booking run --dry-run            # what the daily run would book, ask and rename
 ```
 
 Check the screenshot (in `screenshots`) shows the right answers. Then:
 
 ```
-ev-charging autostart on             # daily at daily_at, and at logon
+ev-charger-booking autostart on             # daily at daily_at, and at logon
 ```
 
 ## Commands
 
 ```
-ev-charging config                       create the settings file (if missing) and say where it is
-ev-charging sign-in [--graph-only]       sign in to Microsoft, then to the form in the tool's Edge window
-ev-charging book <date> [--submit]       fill in the form for a day; --submit sends it
+ev-charger-booking config                       create the settings file (if missing) and say where it is
+ev-charger-booking sign-in [--graph-only]       sign in to Microsoft, then to the form in the tool's Edge window
+ev-charger-booking book <date> [--submit]       fill in the form for a day; --submit sends it
                 [--start 09:00] [--headless] [--force]
-ev-charging run [--dry-run] [--hook] [--json]   the daily run
-ev-charging approvals [--dry-run]        only apply the approval emails to the calendar
-ev-charging status                       requests from today on, and whether each is approved
-ev-charging autostart on|off|status      the daily task
+ev-charger-booking run [--dry-run] [--hook] [--json]   the daily run
+ev-charger-booking approvals [--dry-run]        only apply the approval emails to the calendar
+ev-charger-booking status                       requests from today on, and whether each is approved
+ev-charger-booking autostart on|off|status      the daily task
 ```
 
-`--config <file>` picks a settings file; otherwise `EV_CHARGING_CONFIG`, then `%APPDATA%\ev-charging\config.toml`. `book --submit` won't request a day twice unless you add `--force`; use it for a one-off day, or to book a day the run asked you about. `book` waits for a run in progress (the same lock), so the two can't request the same day at once.
+`--config <file>` picks a settings file; otherwise `EV_CHARGER_BOOKING_CONFIG`, then `%APPDATA%\ev-charger-booking\config.toml`. `book --submit` won't request a day twice unless you add `--force`; use it for a one-off day, or to book a day the run asked you about. `book` waits for a run in progress (the same lock), so the two can't request the same day at once.
 
 ## Sharing settings with other tools: `base`
 
@@ -108,7 +108,7 @@ Several tools on the same shared library can keep their common settings in one f
 tool's settings: `base = "base-config.toml"` (relative to the settings file).
 
 - **The base's `[paths]` are variables** for the tool's paths: `EA_LOCAL = "%LOCALAPPDATA%/my-tools"` lets this file
-  say `state_file = "%EA_LOCAL%/ev-charging-state.json"`. They're looked up before the environment.
+  say `state_file = "%EA_LOCAL%/ev-charger-booking-state.json"`. They're looked up before the environment.
 - **Its other settings that this tool knows, and doesn't set itself, are used**: `login_hint`, `tenant`, `msal_cache`
   and `time_zone`, typically.
 - **A table such as `[review]` applies only if this file has that section too**, even with one key: `[review]` with
@@ -124,7 +124,7 @@ login_hint = "you@example.com"          # your work sign-in
 tenant = "organizations"                # optional: your tenant id pins sign-in to one organisation
 msal_cache = "..."                      # optional: share another tool's Microsoft sign-in
 timezone = "GMT Standard Time"          # Windows name of your time zone, for calendar times (or time_zone)
-state_file = "..."                      # optional: what's been requested (default under %LOCALAPPDATA%\ev-charging)
+state_file = "..."                      # optional: what's been requested (default under %LOCALAPPDATA%\ev-charger-booking)
 log_file = "..."                        # optional
 car_file = "..."                        # optional: your car's details in a file of their own (or [car])
 edge_profile = "..."                    # optional: the tool's Edge profile
@@ -243,8 +243,8 @@ checked out beside this repository (or set the `BackgroundToolsLib` property to 
 
 ```
 dotnet test -c Release
-dotnet publish src/EvCharging.Console -c Release -r win-x64 -o out
-dotnet publish src/EvCharging.Background -c Release -r win-x64 -o out
+dotnet publish src/EvChargerBooking.Console -c Release -r win-x64 -o out
+dotnet publish src/EvChargerBooking.Background -c Release -r win-x64 -o out
 ```
 
 The tests need no network: the calendar and mail are fakes, and the form tests fill a local stand-in in a headless

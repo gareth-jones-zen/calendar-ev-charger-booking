@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>ev-charger-booking</AssemblyName>
+    <RootNamespace>EvChargerBooking</RootNamespace>
+    <PublishAot>true</PublishAot>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EvChargerBooking\EvChargerBooking.csproj" />
+  </ItemGroup>
+</Project>

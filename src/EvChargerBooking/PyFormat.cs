@@ -3,7 +3,7 @@ using System.Text;
 using System.Text.Json.Nodes;
 using PyCompat;
 
-namespace EvCharging;
+namespace EvChargerBooking;
 
 /// <summary>
 /// Python's <c>str.format(**values)</c>, for the templates in the settings: the form's field values

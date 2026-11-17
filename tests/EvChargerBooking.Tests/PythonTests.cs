@@ -1,8 +1,8 @@
 using System.Text.Json.Nodes;
-using EvCharging.Parity;
+using EvChargerBooking.Parity;
 using PyCompat;
 
-namespace EvCharging.Tests;
+namespace EvChargerBooking.Tests;
 
 /// <summary>A temporary folder with the template's settings, a state file, a log and a car file in it: the Python
 /// tests' Base.</summary>
@@ -15,10 +15,10 @@ public sealed class Folder : IDisposable
         // Every file the tool writes is in the folder, whichever way the settings are loaded.
         var files = string.Concat(new[] { "state_file", "log_file", "car_file", "edge_profile", "screenshots" }
             .Select(key => $"{key} = '{System.IO.Path.Combine(Path, key)}'\n"));
-        var text = files + EvCharging.Settings.Template.ReplaceLineEndings("\n") + extra;
+        var text = files + EvChargerBooking.Settings.Template.ReplaceLineEndings("\n") + extra;
         var path = System.IO.Path.Combine(Path, "config.toml");
         File.WriteAllText(path, text);
-        Settings = EvCharging.Settings.Parse(text, path);
+        Settings = EvChargerBooking.Settings.Parse(text, path);
         Settings.StateFile = System.IO.Path.Combine(Path, "state.json");
         Settings.LogFile = System.IO.Path.Combine(Path, "log.txt");
         Settings.CarFile = System.IO.Path.Combine(Path, "car.json");

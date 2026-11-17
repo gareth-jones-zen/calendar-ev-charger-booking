@@ -3,7 +3,7 @@ using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using PyCompat;
 
-namespace EvCharging;
+namespace EvChargerBooking;
 
 /// <summary>One day's decision: book, ask or log, and the text that goes with it.</summary>
 public sealed record Decision(DateOnly Day, string Action, string Text);

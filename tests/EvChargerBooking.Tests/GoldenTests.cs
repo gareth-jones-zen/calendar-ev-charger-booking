@@ -1,8 +1,8 @@
 using System.Text.Json.Nodes;
-using EvCharging.Parity;
+using EvChargerBooking.Parity;
 using PyCompat;
 
-namespace EvCharging.Tests;
+namespace EvChargerBooking.Tests;
 
 /// <summary>The Python as oracle: tests/parity/golden/*.json, written by tests/parity/oracle.py from the Python
 /// v0.1.0.</summary>
@@ -171,7 +171,7 @@ public sealed class DoorTests
     public void The_run_lock_name_is_pythons()
     {
         // win_background.key: sha256(str(path).lower())[:16], so Python's lower-casing (here: no special letters).
-        Assert.Equal("ev-charging-run-" + Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(
+        Assert.Equal("ev-charger-booking-run-" + Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(
                 "c:\\users\\x\\ev.toml"u8.ToArray()))[..16], Runner.LockName(@"C:\Users\X\ev.toml"));
     }
 }

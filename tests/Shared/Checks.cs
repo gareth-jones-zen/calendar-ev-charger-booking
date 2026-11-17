@@ -3,7 +3,7 @@ using System.Text;
 using System.Text.Json.Nodes;
 using PyCompat;
 
-namespace EvCharging.Parity;
+namespace EvChargerBooking.Parity;
 
 /// <summary>The goldens from tests/parity/oracle.py, checked against the port. Each check returns its differences (a
 /// line each, naming the case, never the data) and how many cases it compared. Used by the unit tests and by the AOT
@@ -210,7 +210,7 @@ public static class Checks
                 State.Save(statePath, (JsonObject)item!["state"]!.DeepClone());
                 settings.StateFile = statePath;
                 var output = new StringWriter();
-                var code = global::EvCharging.Cli.Status(settings, new CliHost { Out = output, Now = () => new DateTime(2026, 11, 12, 9, 0, 0) });
+                var code = global::EvChargerBooking.Cli.Status(settings, new CliHost { Out = output, Now = () => new DateTime(2026, 11, 12, 9, 0, 0) });
                 Same($"status {n}", item["out"], output.ToString().Replace("\r\n", "\n", StringComparison.Ordinal));
                 Same($"status {n} code", item["code"], code);
                 Same($"status {n++} bytes", item["bytes"], Encoding.UTF8.GetString(File.ReadAllBytes(statePath)));
@@ -256,13 +256,13 @@ public static class Checks
             var argv = item!["argv"]!.AsArray().Select(a => (string)a!).ToArray();
             var output = new StringWriter();
             var error = new StringWriter();
-            var code = global::EvCharging.Cli.Run(argv, new CliHost { Out = output, Err = error, Env = Env });
+            var code = global::EvChargerBooking.Cli.Run(argv, new CliHost { Out = output, Err = error, Env = Env });
             string Norm(string text) => text.Replace("\r\n", "\n", StringComparison.Ordinal);
             var expectedErr = ((string)item["err"]!).Replace(GoldenHome + @"\AppData\Roaming", appData, StringComparison.Ordinal);
             // --version is the build's (the release's tag), not the Python oracle's.
             var expectedOut = argv is ["--version"]
                 ? (System.Reflection.CustomAttributeExtensions.GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>(
-                    typeof(global::EvCharging.Cli).Assembly)?.InformationalVersion ?? "") + "\n"
+                    typeof(global::EvChargerBooking.Cli).Assembly)?.InformationalVersion ?? "") + "\n"
                 : (string)item["out"]!;
             compared++;
             if (Norm(output.ToString()) != expectedOut || Norm(error.ToString()) != expectedErr || code != (int)item["code"]!)

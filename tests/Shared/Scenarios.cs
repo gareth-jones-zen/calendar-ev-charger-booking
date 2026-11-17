@@ -2,7 +2,7 @@ using System.Text;
 using System.Text.Json.Nodes;
 using PyCompat;
 
-namespace EvCharging.Parity;
+namespace EvChargerBooking.Parity;
 
 /// <summary>What the oracle's fakes raise: its str() is the message, as an OSError's is.</summary>
 public sealed class Failure(string message) : Exception(message);

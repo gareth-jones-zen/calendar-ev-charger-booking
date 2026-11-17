@@ -11394,7 +11394,7 @@
    }
   },
   "fail": {
-   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
   },
   "dry_run": true,
   "approvals_only": false,
@@ -11403,7 +11403,7 @@
    "report": null,
    "error": {
     "type": "SignInNeeded",
-    "text": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+    "text": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
    },
    "log": [],
    "renamed": [],
@@ -16077,7 +16077,7 @@
    }
   },
   "fail": {
-   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
   },
   "dry_run": true,
   "approvals_only": false,
@@ -16086,7 +16086,7 @@
    "report": null,
    "error": {
     "type": "SignInNeeded",
-    "text": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+    "text": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
    },
    "log": [],
    "renamed": [],
@@ -24197,7 +24197,7 @@
    }
   },
   "fail": {
-   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
   },
   "dry_run": false,
   "approvals_only": false,
@@ -24206,7 +24206,7 @@
    "report": null,
    "error": {
     "type": "SignInNeeded",
-    "text": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+    "text": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
    },
    "log": [],
    "renamed": [],
@@ -37168,7 +37168,7 @@
    }
   },
   "fail": {
-   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
   },
   "dry_run": false,
   "approvals_only": true,
@@ -37178,14 +37178,14 @@
     "booked": [],
     "failed": [],
     "questions": [
-     "Couldn't read the approval emails: No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+     "Couldn't read the approval emails: No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
     ],
     "decisions": []
    },
    "error": null,
    "log": [
-    "FAILED applying approvals: No usable sign-in for these scopes. At a console, run: ev-charging sign-in",
-    "ask: Couldn't read the approval emails: No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+    "FAILED applying approvals: No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in",
+    "ask: Couldn't read the approval emails: No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
    ],
    "renamed": [],
    "calls": [
@@ -38926,7 +38926,7 @@
    }
   },
   "fail": {
-   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
   },
   "dry_run": false,
   "approvals_only": false,
@@ -38935,7 +38935,7 @@
    "report": null,
    "error": {
     "type": "SignInNeeded",
-    "text": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+    "text": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
    },
    "log": [],
    "renamed": [],
@@ -42272,7 +42272,7 @@
    }
   },
   "fail": {
-   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
   },
   "dry_run": false,
   "approvals_only": false,
@@ -42281,7 +42281,7 @@
    "report": null,
    "error": {
     "type": "SignInNeeded",
-    "text": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+    "text": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
    },
    "log": [],
    "renamed": [],
@@ -52136,7 +52136,7 @@
    }
   },
   "fail": {
-   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
   },
   "dry_run": false,
   "approvals_only": false,
@@ -52144,12 +52144,12 @@
   "expected": {
    "report": {
     "questions": [
-     "Couldn't read the approval emails: No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+     "Couldn't read the approval emails: No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
     ]
    },
    "error": null,
    "log": [
-    "FAILED applying approvals: No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+    "FAILED applying approvals: No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
    ],
    "renamed": [],
    "calls": [
@@ -56026,7 +56026,7 @@
    }
   },
   "fail": {
-   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
   },
   "dry_run": false,
   "approvals_only": true,
@@ -56036,14 +56036,14 @@
     "booked": [],
     "failed": [],
     "questions": [
-     "Couldn't read the approval emails: No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+     "Couldn't read the approval emails: No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
     ],
     "decisions": []
    },
    "error": null,
    "log": [
-    "FAILED applying approvals: No usable sign-in for these scopes. At a console, run: ev-charging sign-in",
-    "ask: Couldn't read the approval emails: No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+    "FAILED applying approvals: No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in",
+    "ask: Couldn't read the approval emails: No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
    ],
    "renamed": [],
    "calls": [
@@ -58687,7 +58687,7 @@
    }
   },
   "fail": {
-   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
   },
   "dry_run": true,
   "approvals_only": false,
@@ -58696,7 +58696,7 @@
    "report": null,
    "error": {
     "type": "SignInNeeded",
-    "text": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+    "text": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
    },
    "log": [],
    "renamed": [],
@@ -77256,7 +77256,7 @@
    }
   },
   "fail": {
-   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
   },
   "dry_run": false,
   "approvals_only": false,
@@ -77265,7 +77265,7 @@
    "report": null,
    "error": {
     "type": "SignInNeeded",
-    "text": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+    "text": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
    },
    "log": [],
    "renamed": [],
@@ -103965,7 +103965,7 @@
    }
   },
   "fail": {
-   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
   },
   "dry_run": false,
   "approvals_only": false,
@@ -103974,7 +103974,7 @@
    "report": null,
    "error": {
     "type": "SignInNeeded",
-    "text": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+    "text": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
    },
    "log": [],
    "renamed": [],
@@ -105002,7 +105002,7 @@
    }
   },
   "fail": {
-   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
   },
   "dry_run": false,
   "approvals_only": false,
@@ -105011,7 +105011,7 @@
    "report": null,
    "error": {
     "type": "SignInNeeded",
-    "text": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+    "text": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
    },
    "log": [],
    "renamed": [],
@@ -109855,7 +109855,7 @@
    }
   },
   "fail": {
-   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
   },
   "dry_run": true,
   "approvals_only": false,
@@ -109864,7 +109864,7 @@
    "report": null,
    "error": {
     "type": "SignInNeeded",
-    "text": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+    "text": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
    },
    "log": [],
    "renamed": [],
@@ -120639,7 +120639,7 @@
    }
   },
   "fail": {
-   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
   },
   "dry_run": false,
   "approvals_only": false,
@@ -120647,12 +120647,12 @@
   "expected": {
    "report": {
     "questions": [
-     "Couldn't read the approval emails: No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+     "Couldn't read the approval emails: No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
     ]
    },
    "error": null,
    "log": [
-    "FAILED applying approvals: No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+    "FAILED applying approvals: No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
    ],
    "renamed": [],
    "calls": [
@@ -122016,7 +122016,7 @@
    }
   },
   "fail": {
-   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
   },
   "dry_run": false,
   "approvals_only": false,
@@ -122025,7 +122025,7 @@
    "report": null,
    "error": {
     "type": "SignInNeeded",
-    "text": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+    "text": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
    },
    "log": [],
    "renamed": [],
@@ -124045,7 +124045,7 @@
    }
   },
   "fail": {
-   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
   },
   "dry_run": false,
   "approvals_only": false,
@@ -124054,7 +124054,7 @@
    "report": null,
    "error": {
     "type": "SignInNeeded",
-    "text": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+    "text": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
    },
    "log": [],
    "renamed": [],
@@ -157170,7 +157170,7 @@
    }
   },
   "fail": {
-   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
   },
   "dry_run": false,
   "approvals_only": false,
@@ -157179,7 +157179,7 @@
    "report": null,
    "error": {
     "type": "SignInNeeded",
-    "text": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+    "text": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
    },
    "log": [],
    "renamed": [],
@@ -161313,7 +161313,7 @@
    }
   },
   "fail": {
-   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+   "sign_in": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
   },
   "dry_run": true,
   "approvals_only": false,
@@ -161322,7 +161322,7 @@
    "report": null,
    "error": {
     "type": "SignInNeeded",
-    "text": "No usable sign-in for these scopes. At a console, run: ev-charging sign-in"
+    "text": "No usable sign-in for these scopes. At a console, run: ev-charger-booking sign-in"
    },
    "log": [],
    "renamed": [],

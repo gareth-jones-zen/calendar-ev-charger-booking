@@ -5,7 +5,7 @@ using ReviewQueue;
 using Tomlyn;
 using Tomlyn.Model;
 
-namespace EvCharging;
+namespace EvChargerBooking;
 
 /// <summary>Python's ValueError: settings that can't be used, a bad date. The CLI prints it and exits 2.</summary>
 public class PyValueError(string message) : Exception(message);
@@ -55,16 +55,16 @@ public sealed class ApprovalSettings
 /// </summary>
 public sealed class Settings
 {
-    public const string EnvConfig = "EV_CHARGING_CONFIG";
+    public const string EnvConfig = "EV_CHARGER_BOOKING_CONFIG";
 
-    /// <summary>What `ev-charging config` writes: the Python version's TEMPLATE, character for character.</summary>
+    /// <summary>What `ev-charger-booking config` writes: the Python version's TEMPLATE, character for character.</summary>
     public const string Template = """
-        # ev-charging settings. See the README for what each one does.
+        # ev-charger-booking settings. See the README for what each one does.
 
         login_hint = "you@example.com"         # your work sign-in, for Microsoft Graph
         # tenant = "organizations"             # or your organisation's tenant id
         # timezone = "GMT Standard Time"       # Windows name of your time zone, for calendar times
-        # car_file = "%LOCALAPPDATA%/ev-charging/car.json"   # your car's details: keep it out of any repo
+        # car_file = "%LOCALAPPDATA%/ev-charger-booking/car.json"   # your car's details: keep it out of any repo
         # daily_at = "09:00"                   # when autostart's daily run happens (and at logon)
 
         [booking]
@@ -150,21 +150,21 @@ public sealed class Settings
     public static string? Environment(string name) =>
         string.IsNullOrEmpty(name) || name.Contains('\0') ? null : System.Environment.GetEnvironmentVariable(name);
 
-    /// <summary>%APPDATA%\ev-charging\config.toml (or under the home folder if APPDATA isn't set).</summary>
+    /// <summary>%APPDATA%\ev-charger-booking\config.toml (or under the home folder if APPDATA isn't set).</summary>
     public static string DefaultPath(Func<string, string?>? env = null)
     {
         env ??= Environment;
         var appData = env("APPDATA");
-        return PyPath.Pure(System.IO.Path.Combine(string.IsNullOrEmpty(appData) ? PyPath.Home(env) : appData, "ev-charging", "config.toml"));
+        return PyPath.Pure(System.IO.Path.Combine(string.IsNullOrEmpty(appData) ? PyPath.Home(env) : appData, "ev-charger-booking", "config.toml"));
     }
 
-    /// <summary>%LOCALAPPDATA%\ev-charging: the default state, log, car file, Edge profile and screenshots, and the
+    /// <summary>%LOCALAPPDATA%\ev-charger-booking: the default state, log, car file, Edge profile and screenshots, and the
     /// run lock's folder in Python (used off Windows only).</summary>
     public static string LocalFolder(Func<string, string?>? env = null)
     {
         env ??= Environment;
         var local = env("LOCALAPPDATA");
-        return PyPath.Pure(System.IO.Path.Combine(string.IsNullOrEmpty(local) ? PyPath.Home(env) : local, "ev-charging"));
+        return PyPath.Pure(System.IO.Path.Combine(string.IsNullOrEmpty(local) ? PyPath.Home(env) : local, "ev-charger-booking"));
     }
 
     /// <summary>_path(): ~ and %VARIABLES% expanded; an absolute path as it is (not resolved), a relative one
@@ -175,7 +175,7 @@ public sealed class Settings
         return PyPath.IsAbsolute(expanded) ? expanded : PyPath.Resolve(System.IO.Path.Combine(folder, expanded));
     }
 
-    /// <summary>load(path): the given path, else EV_CHARGING_CONFIG, else the default. FileNotFoundException if
+    /// <summary>load(path): the given path, else EV_CHARGER_BOOKING_CONFIG, else the default. FileNotFoundException if
     /// there's no file there, PyValueError for settings that can't be used.</summary>
     public static Settings Load(string? path = null, Func<string, string?>? env = null)
     {
@@ -183,7 +183,7 @@ public sealed class Settings
         var given = !string.IsNullOrEmpty(path) ? path : env(EnvConfig) is { Length: > 0 } fromEnv ? fromEnv : DefaultPath(env);
         var full = PyPath.Resolve(given);
         if (!File.Exists(full))
-            throw new FileNotFoundException($"No settings file at {full}. Run `ev-charging config` to create one.");
+            throw new FileNotFoundException($"No settings file at {full}. Run `ev-charger-booking config` to create one.");
         return Parse(PyStr.ReadText(full), full, env);
     }
 
@@ -234,7 +234,7 @@ public sealed class Settings
             DailyAt = Time(raw.TryGetValue("daily_at", out var daily) ? Str(daily, "daily_at") : "09:00", "daily_at"),
             MsalCache = Path("msal_cache"),
             StateFile = Path("state_file") ?? Local("state.json"),
-            LogFile = Path("log_file") ?? Local("ev-charging.log"),
+            LogFile = Path("log_file") ?? Local("ev-charger-booking.log"),
             CarFile = Path("car_file") ?? Local("car.json"),
             EdgeProfile = Path("edge_profile") ?? Local("edge-profile"),
             Screenshots = Path("screenshots") ?? Local("screenshots"),

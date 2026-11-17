@@ -8,7 +8,7 @@
     <PackageReference Include="Tomlyn" Version="2.11.1" />
   </ItemGroup>
   <ItemGroup>
-    <InternalsVisibleTo Include="EvCharging.Tests" />
-    <InternalsVisibleTo Include="ev-charging-parity" />
+    <InternalsVisibleTo Include="EvChargerBooking.Tests" />
+    <InternalsVisibleTo Include="ev-charger-booking-parity" />
   </ItemGroup>
 </Project>
