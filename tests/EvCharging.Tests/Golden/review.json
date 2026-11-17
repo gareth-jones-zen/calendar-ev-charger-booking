@@ -1,0 +1,119 @@
+[
+ {
+  "name": "questions",
+  "report": {
+   "config": "C:\\x\\ev-charging.toml",
+   "questions": [
+    "Thu 26 Nov: Travel block says EV but work plan says remote. Book EV?",
+    "Fri 27 Nov: request not approved yet – check Facilities' email"
+   ],
+   "booked": [
+    "2026-11-26"
+   ],
+   "failed": [],
+   "summary": "1 booked, 0 failed, 2 question(s)"
+  },
+  "seed": {
+   "items": [
+    {
+     "id": "11111111",
+     "source": "preps",
+     "type": "prep",
+     "added": "2026-11-16T07:00:00",
+     "title": "unrelated"
+    },
+    {
+     "id": "22222222",
+     "source": "ev",
+     "type": "question",
+     "added": "2026-11-16T08:00:00",
+     "title": "an old question"
+    },
+    {
+     "id": "33333333",
+     "added": "2026-11-16T08:00:00",
+     "source": "cover-rota",
+     "type": "check",
+     "title": "an old check"
+    }
+   ]
+  },
+  "items": [
+   {
+    "id": "11111111",
+    "source": "preps",
+    "type": "prep",
+    "title": "unrelated"
+   },
+   {
+    "id": "33333333",
+    "source": "cover-rota",
+    "type": "check",
+    "title": "an old check"
+   },
+   {
+    "id": "a0d27046",
+    "source": "ev",
+    "type": "question",
+    "title": "Thu 26 Nov: Travel block says EV but work plan says remote. Book EV?"
+   },
+   {
+    "id": "d2f7741c",
+    "source": "ev",
+    "type": "question",
+    "title": "Fri 27 Nov: request not approved yet – check Facilities' email"
+   }
+  ],
+  "printed": "queued 2 EV question(s)"
+ },
+ {
+  "name": "none",
+  "report": {
+   "config": "C:\\x\\ev-charging.toml",
+   "questions": [],
+   "booked": [],
+   "failed": [],
+   "summary": "0 booked, 0 failed, 0 question(s)"
+  },
+  "seed": {
+   "items": [
+    {
+     "id": "11111111",
+     "source": "preps",
+     "type": "prep",
+     "added": "2026-11-16T07:00:00",
+     "title": "unrelated"
+    },
+    {
+     "id": "22222222",
+     "source": "ev",
+     "type": "question",
+     "added": "2026-11-16T08:00:00",
+     "title": "an old question"
+    },
+    {
+     "id": "33333333",
+     "added": "2026-11-16T08:00:00",
+     "source": "cover-rota",
+     "type": "check",
+     "title": "an old check"
+    }
+   ]
+  },
+  "items": [
+   {
+    "id": "11111111",
+    "source": "preps",
+    "type": "prep",
+    "title": "unrelated"
+   },
+   {
+    "id": "33333333",
+    "source": "cover-rota",
+    "type": "check",
+    "title": "an old check"
+   }
+  ],
+  "printed": "queued 0 EV question(s)"
+ }
+]

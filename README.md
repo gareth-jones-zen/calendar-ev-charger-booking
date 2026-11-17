@@ -144,6 +144,11 @@ rename = "Travel; EV – {point}, {start}–{end}"  # the morning entry's new su
 morning_before = 12                     # the entry renamed starts before this hour; later ones are left alone
 set_location = true                     # put the charge point in the entry's location too
 chase_next_working_day = true           # ask if the next working day's request isn't approved yet
+
+[review]                                # optional: put each run's questions in a review queue (no section: off)
+file = "%LOCALAPPDATA%/my-tools/review.json"   # the queue file
+source = "ev"                           # the name its items go under
+# lock = "my-tools-review"              # optional: the writers' lock (default: the folder and file name)
 ```
 
 Paths may use `~` and `%VARIABLES%`; relative paths are relative to the settings file.
@@ -177,6 +182,21 @@ After every run that isn't a dry run (`run --hook`, which the daily task uses), 
 ```
 
 It runs even when there are no questions: each run's questions replace the last run's, so an empty list means the earlier ones are settled. Use it to put the questions somewhere you'll see them.
+
+## The review queue
+
+With a `[review]` section, the same runs (`run --hook`, not a dry run) also put the questions in a **review queue**: one JSON file that whatever starts your day (a script, an assistant's session) reads, shows you and clears. It's [background-tools-lib](https://github.com/gareth-jones-zen/background-tools-lib)'s `ReviewQueue`, so other tools can share the file.
+
+- **Each question is an item** of type `question`, titled with the question.
+- **Each run's questions replace the last run's** under `source`, so a run with none clears them: the earlier ones are settled.
+- Writes take a lock between processes and replace the file atomically. If the queue can't be written, the log says why and the run carries on.
+
+```json
+{"items": [{"id": "a0d27046", "added": "2026-11-17T08:00:12", "source": "ev", "type": "question",
+            "title": "Thu 26 Nov: Travel block says EV but work plan says remote. Book EV?"}]}
+```
+
+`[review]` and `after_run` are independent: use either, or both.
 
 ## Notifications
 
