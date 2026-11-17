@@ -43,6 +43,8 @@ public static class Form
     /// outside any repo. TOML if it ends .toml, otherwise JSON.</summary>
     public static JsonObject Car(Settings settings)
     {
+        if (settings.Car is { } inSettings)
+            return (JsonObject)inSettings.DeepClone();
         var path = settings.CarFile;
         if (!File.Exists(path))
             throw new FormError($"No car details at {path}. See the README: they live in a file of their own.");

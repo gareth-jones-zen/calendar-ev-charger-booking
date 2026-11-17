@@ -125,6 +125,9 @@ public sealed class Settings
     public required string StateFile { get; set; }
     public required string LogFile { get; set; }
     public required string CarFile { get; set; }
+
+    /// <summary>[car], when the settings hold the car's details themselves (1.2.0); null to read car_file.</summary>
+    public System.Text.Json.Nodes.JsonObject? Car { get; set; }
     public required string EdgeProfile { get; set; }
     public required string Screenshots { get; set; }
     public List<string> AfterRun { get; set; } = [];
@@ -188,18 +191,28 @@ public sealed class Settings
     public static Settings Parse(string text, string path, Func<string, string?>? env = null)
     {
         TomlTable raw;
+        env ??= Environment;
         try
         {
             if (text.StartsWith('﻿'))
                 throw new PyValueError("Invalid statement (at line 1, column 1)");   // tomllib refuses a byte order mark
-            raw = TomlSerializer.Deserialize(text, TomlContext.Default.TomlTable) ?? [];
+            // A base file (1.2.0): base = "base-config.toml" shares settings with other tools (PyCompat.BaseSettings).
+            var read = BaseSettings.Read(text, path, env, KnownKeys);
+            (raw, env) = (read.Raw, read.Env);
         }
         catch (Exception error) when (error is not PyValueError)
         {
-            throw new PyValueError($"{path}: {error.Message}");
+            throw new PyValueError(error is FormatException ? error.Message : $"{path}: {error.Message}");
         }
         return Parse(raw, path, env);
     }
+
+    /// <summary>The settings this tool reads: what it takes from a base file.</summary>
+    public static readonly string[] KnownKeys =
+    [
+        "login_hint", "tenant", "msal_cache", "timezone", "time_zone", "state_file", "log_file", "car_file", "edge_profile",
+        "screenshots", "daily_at", "after_run", "booking", "trigger", "form", "approvals", "review", "car",
+    ];
 
     /// <summary>parse(raw, path): every check and message as the Python's.</summary>
     public static Settings Parse(TomlTable raw, string path, Func<string, string?>? env = null)
@@ -215,7 +228,8 @@ public sealed class Settings
             Path = path,
             LoginHint = raw.TryGetValue("login_hint", out var hint) ? Str(hint, "login_hint") : null,
             Tenant = raw.TryGetValue("tenant", out var tenant) ? Str(tenant, "tenant") : "organizations",
-            Timezone = raw.TryGetValue("timezone", out var zone) ? Str(zone, "timezone") : "GMT Standard Time",
+            Timezone = raw.TryGetValue("timezone", out var zone) ? Str(zone, "timezone")
+                : raw.TryGetValue("time_zone", out var zone2) ? Str(zone2, "time_zone") : "GMT Standard Time",   // the base's name
             AfterRun = raw.TryGetValue("after_run", out var hook) ? Strings(hook, "after_run") : [],
             DailyAt = Time(raw.TryGetValue("daily_at", out var daily) ? Str(daily, "daily_at") : "09:00", "daily_at"),
             MsalCache = Path("msal_cache"),
@@ -295,7 +309,26 @@ public sealed class Settings
         }
         if (raw.TryGetValue("review", out var review))
             settings.Review = ReviewSection(review, path, folder, env);
+        if (raw.TryGetValue("car", out var car))
+            settings.Car = CarSection(car, path);
         return settings;
+    }
+
+    /// <summary>[car] (1.2.0): the car's details in the settings, instead of car_file. make, model and registration are
+    /// the form's {car_make}, {car_model} and {car_registration}; any other key (additional_information, start_time)
+    /// is used as it's named.</summary>
+    private static System.Text.Json.Nodes.JsonObject CarSection(object? value, string path)
+    {
+        if (value is not TomlTable table)
+            throw new PyValueError($"[car] in {path} should be a table: make, model, registration, and anything else the form asks.");
+        var car = new System.Text.Json.Nodes.JsonObject();
+        foreach (var (key, item) in table)
+        {
+            if (item is not string text)
+                throw new PyValueError($"[car] {key} in {path} should be text.");
+            car[key is "make" or "model" or "registration" ? "car_" + key : key] = text;
+        }
+        return car;
     }
 
     /// <summary>[review], checked strictly (an unknown key, or a value that isn't text, is an error); the file is a path

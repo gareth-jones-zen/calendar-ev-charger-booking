@@ -48,13 +48,23 @@ ev-charging config     # create the settings file and say where it is
 
 **1. Fill in the settings file** (below). The parts specific to your workplace are the form's address and questions, and who sends the approvals. If a colleague already uses it, copy their `[form]` and `[approvals]` sections.
 
-**2. Put your car's details in a file of their own**, outside any repo, at `car_file` (default `%LOCALAPPDATA%\ev-charging\car.json`):
+**2. Add your car's details**, in the settings (1.2.0):
+
+```toml
+[car]
+make = "Make"                 # the form's {car_make}
+model = "Model"               # {car_model}
+registration = "YOUR REG"     # {car_registration}
+additional_information = ""   # any other key is used as it's named
+```
+
+Or keep them in a file of their own, `car_file` (default `%LOCALAPPDATA%\ev-charging\car.json`), if your settings file is somewhere shared:
 
 ```json
 {"car_make": "Make", "car_model": "Model", "car_registration": "YOUR REG", "additional_information": ""}
 ```
 
-Any key in it can be used in the form's fields. `start_time` in it is used if the settings file doesn't set one. It must be one object of names and values, as above: anything else (a list, say) fails the booking with an error naming the file.
+`[car]`, when it's there, wins. Any key can be used in the form's fields, and `start_time` is used if `[booking]` doesn't set one. The file must be one object of names and values, as above: anything else (a list, say) fails the booking with an error naming the file.
 
 **3. Sign in**, once:
 
@@ -92,16 +102,31 @@ ev-charging autostart on|off|status      the daily task
 
 `--config <file>` picks a settings file; otherwise `EV_CHARGING_CONFIG`, then `%APPDATA%\ev-charging\config.toml`. `book --submit` won't request a day twice unless you add `--force`; use it for a one-off day, or to book a day the run asked you about. `book` waits for a run in progress (the same lock), so the two can't request the same day at once.
 
+## Sharing settings with other tools: `base`
+
+Several tools on the same shared library can keep their common settings in one file, named at the top of each
+tool's settings: `base = "base-config.toml"` (relative to the settings file).
+
+- **The base's `[paths]` are variables** for the tool's paths: `EA_LOCAL = "%LOCALAPPDATA%/my-tools"` lets this file
+  say `state_file = "%EA_LOCAL%/ev-charging-state.json"`. They're looked up before the environment.
+- **Its other settings that this tool knows, and doesn't set itself, are used**: `login_hint`, `tenant`, `msal_cache`
+  and `time_zone`, typically.
+- **A table such as `[review]` applies only if this file has that section too**, even with one key: `[review]` with
+  `source = "ev"` here takes the queue's `file` and `lock` from the base.
+
+The loader is background-tools-lib's `PyCompat.BaseSettings`.
+
 ## Settings
 
 ```toml
+base = "base-config.toml"               # optional (1.2.0): settings shared with other tools, below
 login_hint = "you@example.com"          # your work sign-in
 tenant = "organizations"                # optional: your tenant id pins sign-in to one organisation
 msal_cache = "..."                      # optional: share another tool's Microsoft sign-in
-timezone = "GMT Standard Time"          # Windows name of your time zone, for calendar times
+timezone = "GMT Standard Time"          # Windows name of your time zone, for calendar times (or time_zone)
 state_file = "..."                      # optional: what's been requested (default under %LOCALAPPDATA%\ev-charging)
 log_file = "..."                        # optional
-car_file = "..."                        # optional: your car's details, outside any repo
+car_file = "..."                        # optional: your car's details in a file of their own (or [car])
 edge_profile = "..."                    # optional: the tool's Edge profile
 screenshots = "..."                     # optional: where form screenshots go
 after_run = ["powershell", "-File", "hook.ps1"]   # optional: run after each run, with a JSON report on stdin
