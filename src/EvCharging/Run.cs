@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Nodes;
 using PyCompat;
+using ReviewQueue;
 using WinBackground;
 
 namespace EvCharging;
@@ -261,15 +262,39 @@ public static class Runner
         (settings, day) => Form.Book(settings, day, door, submit: true, headless: headless, start: Form.StartTime(settings, Car(settings)), options);
 
     /// <summary>The hook's stdin: json.dumps of config, questions, booked, failed and summary.</summary>
-    public static string HookPayload(string configPath, Report report) =>
-        PyJson.Dump(new JsonObject
+    public static string HookPayload(string configPath, Report report) => PyJson.Dump(HookReport(configPath, report));
+
+    /// <summary>What the hook is given, and [review] is built from: config, questions, booked, failed and summary.</summary>
+    public static JsonObject HookReport(string configPath, Report report) => new()
+    {
+        ["config"] = configPath,
+        ["questions"] = Report.Strings(report.Questions),
+        ["booked"] = Report.Strings(report.Booked),
+        ["failed"] = Report.Strings(report.Failed),
+        ["summary"] = Summary(report),
+    };
+
+    /// <summary>[review]'s items for a run: a "question" for each of its questions, titled with the question.</summary>
+    public static IReadOnlyList<ReviewItem> ReviewItems(JsonObject hookReport) =>
+        (hookReport["questions"] as JsonArray ?? []).Select(q => new ReviewItem("question", new JsonObject { ["title"] = q?.DeepClone() })).ToList();
+
+    /// <summary>[review]: the run's questions replace the last run's under the settings' source, so an empty list
+    /// clears it (the earlier ones are settled). Logged; nothing it does stops the run.</summary>
+    public static void Review(Settings settings, Report report, Action<string> log)
+    {
+        if (settings.Review is not { } review)
+            return;
+        try
         {
-            ["config"] = configPath,
-            ["questions"] = Report.Strings(report.Questions),
-            ["booked"] = Report.Strings(report.Booked),
-            ["failed"] = Report.Strings(report.Failed),
-            ["summary"] = Summary(report),
-        });
+            var items = ReviewItems(HookReport(settings.Path, report));
+            review.Open().Replace(review.Source, items);
+            log($"review: {items.Count} question(s) queued under {review.Source} in {review.File}");
+        }
+        catch (Exception error)
+        {
+            log($"review queue failed: {error.Message}");
+        }
+    }
 
     /// <summary>after_run(): the settings' command, run in the settings file's folder with the report on stdin (UTF-8).
     /// Its output goes to the log; nothing it does stops the run.</summary>
@@ -303,7 +328,7 @@ public static class Runner
         "ev-charging-run-" + Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(PyStr.Lower(configPath))))[..16];
 
     /// <summary>locked_run(): one run at a time per settings file (two at once could request the same day twice), then
-    /// the hook unless it's a dry run or approvals only.</summary>
+    /// the hook and the review queue, unless it's a dry run or approvals only.</summary>
     public static Report LockedRun(Settings settings, IOutlook outlook, Booker booker, Action<string> log, bool dryRun = false,
         bool hook = false, bool approvalsOnly = false, DateOnly? today = null, Func<DateTime>? now = null, HookRunner? runner = null)
     {
@@ -311,8 +336,12 @@ public static class Runner
         Report report;
         using (Locks.Exclusive(LockName(settings.Path), 900, $"run for {settings.Path}"))
             report = Run(settings, outlook, today ?? DateOnly.FromDateTime(now()), dryRun, approvalsOnly, log, booker, now);
-        if (hook && !dryRun && !approvalsOnly && settings.AfterRun.Count > 0)
-            AfterRun(settings, report, log, runner);
+        if (hook && !dryRun && !approvalsOnly)
+        {
+            if (settings.AfterRun.Count > 0)
+                AfterRun(settings, report, log, runner);
+            Review(settings, report, log);
+        }
         return report;
     }
 }

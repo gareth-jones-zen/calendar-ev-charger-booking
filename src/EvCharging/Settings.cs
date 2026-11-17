@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using PyCompat;
+using ReviewQueue;
 using Tomlyn;
 using Tomlyn.Model;
 
@@ -139,6 +140,9 @@ public sealed class Settings
     public string WorkPlan { get; set; } = "office";
     public FormSettings Form { get; set; } = new();
     public ApprovalSettings Approvals { get; set; } = new();
+
+    /// <summary>[review], or null: no review queue. Each run's questions go there, as after_run would pass them on.</summary>
+    public ReviewSettings? Review { get; set; }
 
     public static string? Environment(string name) =>
         string.IsNullOrEmpty(name) || name.Contains('\0') ? null : System.Environment.GetEnvironmentVariable(name);
@@ -289,7 +293,23 @@ public sealed class Settings
             PyFormat.Check(a.Rename, "[approvals] rename");
             settings.Approvals = a;
         }
+        if (raw.TryGetValue("review", out var review))
+            settings.Review = ReviewSection(review, path, folder, env);
         return settings;
+    }
+
+    /// <summary>[review], checked strictly (an unknown key, or a value that isn't text, is an error); the file is a path
+    /// like the others.</summary>
+    private static ReviewSettings ReviewSection(object? value, string path, string folder, Func<string, string?> env)
+    {
+        try
+        {
+            return ReviewSettings.Read(value, path, file => PathSetting(file, folder, env));
+        }
+        catch (FormatException error)
+        {
+            throw new PyValueError(error.Message);
+        }
     }
 
     /// <summary>create_default(): the default settings file, from the template if it isn't there yet.</summary>
