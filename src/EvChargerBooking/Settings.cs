@@ -132,6 +132,13 @@ public sealed class Settings
     public required string Screenshots { get; set; }
     public List<string> AfterRun { get; set; } = [];
     public string DailyAt { get; set; } = "09:00";
+
+    /// <summary>2.1.0: how often autostart runs it (0: daily at daily_at, as before), and only between these times,
+    /// Monday to Friday if weekdays.</summary>
+    public int EveryMinutes { get; set; } = 15;
+    public string HoursFrom { get; set; } = "07:00";
+    public string HoursTo { get; set; } = "19:00";
+    public bool Weekdays { get; set; } = true;
     public int DaysAhead { get; set; } = 14;
     public string StartTime { get; set; } = "";
     public double SlotHours { get; set; } = 4;
@@ -211,7 +218,8 @@ public sealed class Settings
     public static readonly string[] KnownKeys =
     [
         "login_hint", "tenant", "msal_cache", "timezone", "time_zone", "state_file", "log_file", "car_file", "edge_profile",
-        "screenshots", "daily_at", "after_run", "booking", "trigger", "form", "approvals", "review", "car",
+        "screenshots", "daily_at", "every_minutes", "hours", "weekdays", "after_run", "booking", "trigger", "form", "approvals",
+        "review", "car",
     ];
 
     /// <summary>parse(raw, path): every check and message as the Python's.</summary>
@@ -239,6 +247,21 @@ public sealed class Settings
             EdgeProfile = Path("edge_profile") ?? Local("edge-profile"),
             Screenshots = Path("screenshots") ?? Local("screenshots"),
         };
+
+        if (raw.TryGetValue("every_minutes", out var every))
+        {
+            settings.EveryMinutes = Int(every);
+            if (settings.EveryMinutes is < 0 or > 1440 || settings.EveryMinutes is > 0 and < 5)
+                throw new PyValueError($"every_minutes in {path} should be 0 (daily at daily_at) or 5 to 1440.");
+        }
+        if (raw.TryGetValue("hours", out var hoursValue))
+        {
+            var span = Str(hoursValue, "hours").Split('-');
+            if (span.Length != 2)
+                throw new PyValueError($"hours in {path} should look like \"07:00-19:00\".");
+            (settings.HoursFrom, settings.HoursTo) = (Time(span[0].Trim(), "hours"), Time(span[1].Trim(), "hours"));
+        }
+        settings.Weekdays = !raw.ContainsKey("weekdays") || Truthy(raw, "weekdays");
 
         var booking = Table(raw, "booking");
         var trigger = Table(raw, "trigger");

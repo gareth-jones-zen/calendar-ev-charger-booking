@@ -2,7 +2,7 @@
 
 Books an office EV charging slot for you when your Outlook calendar asks for one, and puts the charge point you're given into your calendar.
 
-It's for workplaces where charging slots are requested through a **Microsoft Form**, and approved by someone who emails back. Once a day it:
+It's for workplaces where charging slots are requested through a **Microsoft Form**, and approved by someone who emails back. Every 15 minutes in working hours it:
 
 1. **Looks ahead** (14 days by default) for calendar entries that ask for a slot. The usual habit is a "Travel" block on each office day, with "EV" in it when you want the charger: `Travel; EV`.
 2. **Checks Outlook's "My work plan"** says you're in the office that day (optional).
@@ -38,7 +38,7 @@ Windows (x64) with Microsoft Edge, which Windows has; nothing else.
 3. Run the commands below from that folder, or add it to your `PATH`.
 
 It holds two programs: `ev-charger-booking.exe`, for a console, and `ev-charger-booking-background.exe`, the same program with no
-window, which the daily task runs. It drives your installed Edge directly, so there's no browser to download.
+window, which the scheduled task runs. It drives your installed Edge directly, so there's no browser to download.
 
 ## Getting started
 
@@ -78,13 +78,13 @@ A browser opens to sign in to Microsoft (for your calendar and mail), then an Ed
 
 ```
 ev-charger-booking book 2026-11-26          # fill in the form and screenshot it; submits nothing
-ev-charger-booking run --dry-run            # what the daily run would book, ask and rename
+ev-charger-booking run --dry-run            # what a run would book, ask and rename
 ```
 
 Check the screenshot (in `screenshots`) shows the right answers. Then:
 
 ```
-ev-charger-booking autostart on             # daily at daily_at, and at logon
+ev-charger-booking autostart on             # every 15 minutes in working hours, and at logon
 ```
 
 ## Commands
@@ -94,10 +94,10 @@ ev-charger-booking config                       create the settings file (if mis
 ev-charger-booking sign-in [--graph-only]       sign in to Microsoft, then to the form in the tool's Edge window
 ev-charger-booking book <date> [--submit]       fill in the form for a day; --submit sends it
                 [--start 09:00] [--headless] [--force]
-ev-charger-booking run [--dry-run] [--hook] [--json]   the daily run
+ev-charger-booking run [--dry-run] [--hook] [--json]   one run
 ev-charger-booking approvals [--dry-run]        only apply the approval emails to the calendar
 ev-charger-booking status                       requests from today on, and whether each is approved
-ev-charger-booking autostart on|off|status      the daily task
+ev-charger-booking autostart on|off|status      the scheduled task
 ```
 
 `--config <file>` picks a settings file; otherwise `EV_CHARGER_BOOKING_CONFIG`, then `%APPDATA%\ev-charger-booking\config.toml`. `book --submit` won't request a day twice unless you add `--force`; use it for a one-off day, or to book a day the run asked you about. `book` waits for a run in progress (the same lock), so the two can't request the same day at once.
@@ -130,7 +130,10 @@ car_file = "..."                        # optional: your car's details in a file
 edge_profile = "..."                    # optional: the tool's Edge profile
 screenshots = "..."                     # optional: where form screenshots go
 after_run = ["powershell", "-File", "hook.ps1"]   # optional: run after each run, with a JSON report on stdin
-daily_at = "09:00"                      # when autostart's daily run happens
+every_minutes = 15                      # how often autostart runs it (2.1.0); 0 for once a day at daily_at
+hours = "07:00-19:00"                   # ...only between these times
+weekdays = true                         # ...and only Monday to Friday
+daily_at = "09:00"                      # with every_minutes = 0: when the daily run happens
 
 [booking]
 days_ahead = 14                         # how far ahead to look
@@ -199,7 +202,7 @@ Paths may use `~` and `%VARIABLES%`; relative paths are relative to the settings
 
 ## The after-run hook
 
-After every run that isn't a dry run (`run --hook`, which the daily task uses), `after_run` gets the report on stdin, from the settings file's folder:
+After every run that isn't a dry run (`run --hook`, which the scheduled task uses), `after_run` gets the report on stdin, from the settings file's folder:
 
 ```json
 {"config": "C:\\...\\config.toml", "questions": ["Thu 26 Nov: Travel block says EV but work plan says remote. Book EV?"],
@@ -225,7 +228,7 @@ With a `[review]` section, the same runs (`run --hook`, not a dry run) also put 
 
 ## Notifications
 
-A scheduled run notifies only when something needs you: questions, a sign-in needed, or the calendar couldn't be read. If the approval emails can't all be read, the approvals read before the problem are still saved, and the problem is a question. A run that books and renames without trouble is silent; `status` and the log say what it did.
+A scheduled run notifies only when something needs you: questions, a sign-in needed, or the calendar couldn't be read. **Since 2.1.0 it runs every 15 minutes, so it doesn't repeat itself:** each question is notified once (and again only if it goes away and comes back), a sign-in on the first run that needs one, and any other failure on the third run in a row (not again until a run works). What's been notified is kept beside the state file, as `<state>.notified.json`. If the approval emails can't all be read, the approvals read before the problem are still saved, and the problem is a question. A run that books and renames without trouble is silent; `status` and the log say what it did.
 
 ## Where things are
 

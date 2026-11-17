@@ -59,7 +59,7 @@ public static class Cli
         ev-charger-booking run --hook              then pass the report to the settings' after_run command
         ev-charger-booking approvals [--dry-run]   only apply the approval emails to the calendar
         ev-charger-booking status                  requests from today on, and whether each is approved
-        ev-charger-booking autostart on            run daily at daily_at and at logon, and now (off, status)
+        ev-charger-booking autostart on            run every 15 min in working hours and at logon (off, status)
 
         positional arguments:
           {config,sign-in,book,run,approvals,status,autostart}
@@ -202,6 +202,8 @@ public static class Cli
 
     private static int RunCommand(Settings settings, Args args, CliHost host)
     {
+        if (args.Scheduled && !Autostart.InHours(settings, host.Now()))
+            return 0;   // the task repeats round the clock; this is when it's meant to run (2.1.0)
         var log = Logger.Create(settings.LogFile, !args.Json && !args.Scheduled ? host.LogEcho ?? host.Out : null, clock: host.Now);
         Report report;
         try
@@ -216,11 +218,11 @@ public static class Cli
         catch (Exception error)
         {
             log($"FAILED: {PyStr.Head(error.Message, 300)}");
-            if (args.Scheduled)
+            if (args.Scheduled && !args.DryRun && Notices.Failed(settings, error is M365Graph.SignInNeededException))
             {
                 var title = error is M365Graph.SignInNeededException ? "ev-charger-booking needs a sign-in"
                     : error is CalendarError ? "EV booking: couldn't read your calendar"
-                    : "EV booking failed";
+                    : $"EV booking failed {Notices.FailuresBeforeNotice} times in a row";
                 host.Notify(title, [PyStr.Head(error.Message, 200)]);
             }
             if (error is M365Graph.SignInNeededException or CalendarError or TimeoutException)
@@ -231,8 +233,13 @@ public static class Cli
             throw;
         }
         log($"done: {Runner.Summary(report)}{(args.DryRun ? " (dry run)" : "")}");
-        if (args.Scheduled && report.Questions.Count > 0 && !args.DryRun)
-            host.Notify($"EV booking: {report.Questions.Count} to check", report.Questions);
+        if (args.Scheduled && !args.DryRun)
+        {
+            // Each question once (2.1.0): a run every 15 minutes would otherwise repeat them all day.
+            var fresh = Notices.NewQuestions(settings, report.Questions, host.Now());
+            if (fresh.Count > 0)
+                host.Notify($"EV booking: {fresh.Count} to check", fresh);
+        }
         if (args.Json)
             Print(host.Out, PyJson.Dump(report.ToJson(), indent: 1));
         return 0;
@@ -356,8 +363,11 @@ public static class Cli
             {
                 var settings = Settings.Load(args.Config, host.Env);   // check the settings load before scheduling them
                 var (exe, taskArgs) = Autostart.Command(host.ProgramDir, settings.Path);
-                var command = task.Enable(exe, taskArgs, Path.GetDirectoryName(settings.Path), Autostart.Schedule(settings.DailyAt));
-                Print(host.Out, $"Autostart is on: '{Autostart.TaskName}' runs daily at {settings.DailyAt} and at logon, and has "
+                var command = task.Enable(exe, taskArgs, Path.GetDirectoryName(settings.Path), Autostart.Schedule(settings));
+                var when = settings.EveryMinutes > 0
+                    ? $"every {settings.EveryMinutes} minutes, {settings.HoursFrom}-{settings.HoursTo}{(settings.Weekdays ? " Mon-Fri" : "")},"
+                    : $"daily at {settings.DailyAt}";
+                Print(host.Out, $"Autostart is on: '{Autostart.TaskName}' runs {when} and at logon, and has "
                                 + $"started now.\n  {command}\n  log: {settings.LogFile}");
             }
             else if (args.Action == "off")
