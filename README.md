@@ -129,6 +129,7 @@ log_file = "..."                        # optional
 car_file = "..."                        # optional: your car's details in a file of their own (or [car])
 edge_profile = "..."                    # optional: the tool's Edge profile
 screenshots = "..."                     # optional: where form screenshots go
+keep_screenshots_days = 7               # optional: deleted once their day is this many days past
 after_run = ["powershell", "-File", "hook.ps1"]   # optional: run after each run, with a JSON report on stdin
 every_minutes = 15                      # how often autostart runs it (2.1.0); 0 for once a day at daily_at
 hours = "07:00-19:00"                   # ...only between these times
@@ -237,7 +238,7 @@ A scheduled run notifies only when something needs you: questions, a sign-in nee
   - If a failed submission can't be taken off again, the day stays marked as requested and the question says so: book it with `book --submit --force`.
   - **If it clicked Submit but saw no confirmation, the request may have gone, so the day stays marked as requested** and the question asks you to check for the approval email. If it didn't go through, book it with `book --submit --force`.
 - **Log** (`log_file`): every decision, booking and rename.
-- **Screenshots** (`screenshots`): the form as filled in (from the top, so the date and time show), for each preview and submission, and after a Submit that didn't confirm.
+- **Screenshots** (`screenshots`): the form as filled in (from the top, so the date and time show), for each preview and submission, and after a Submit that didn't confirm. **Each run deletes the screenshots of days more than `keep_screenshots_days` past** (default 7, in case a booking needs querying; 0 removes them once the day has passed). Nothing reads them back: they're for you, to check a preview or a submission that didn't confirm.
 
 ## Building
 

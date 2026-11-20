@@ -130,6 +130,11 @@ public sealed class Settings
     public System.Text.Json.Nodes.JsonObject? Car { get; set; }
     public required string EdgeProfile { get; set; }
     public required string Screenshots { get; set; }
+
+    /// <summary>2.2.0: a day's screenshots are deleted once the day is this many days past (keep_screenshots_days;
+    /// default 7, in case a booking needs querying). Nothing reads them back: they're for a person checking a preview
+    /// or a submission that didn't confirm.</summary>
+    public int KeepScreenshotsDays { get; set; } = 7;
     public List<string> AfterRun { get; set; } = [];
     public string DailyAt { get; set; } = "09:00";
 
@@ -218,7 +223,7 @@ public sealed class Settings
     public static readonly string[] KnownKeys =
     [
         "login_hint", "tenant", "msal_cache", "timezone", "time_zone", "state_file", "log_file", "car_file", "edge_profile",
-        "screenshots", "daily_at", "every_minutes", "hours", "weekdays", "after_run", "booking", "trigger", "form", "approvals",
+        "screenshots", "keep_screenshots_days", "daily_at", "every_minutes", "hours", "weekdays", "after_run", "booking", "trigger", "form", "approvals",
         "review", "car",
     ];
 
@@ -248,6 +253,12 @@ public sealed class Settings
             Screenshots = Path("screenshots") ?? Local("screenshots"),
         };
 
+        if (raw.TryGetValue("keep_screenshots_days", out var keep))
+        {
+            settings.KeepScreenshotsDays = Int(keep);
+            if (settings.KeepScreenshotsDays is < 0 or > 3650)
+                throw new PyValueError($"keep_screenshots_days in {path} should be 0 to 3650.");
+        }
         if (raw.TryGetValue("every_minutes", out var every))
         {
             settings.EveryMinutes = Int(every);

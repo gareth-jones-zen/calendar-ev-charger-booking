@@ -22,6 +22,26 @@ public sealed class FrequentRunTests : IDisposable
         Settings.Parse($"state_file = \"{dir.Replace('\\', '/')}/state.json\"\n" + text, Path.Combine(dir, "ev.toml"), _ => null);
 
     [Fact]
+    public void Screenshots_of_days_more_than_a_week_past_are_removed()
+    {
+        var shots = Path.Combine(dir, "shots");
+        Directory.CreateDirectory(shots);
+        string[] names = ["2026-11-10-submitted.png", "2026-11-12-preview.png", "2026-11-13-after-submit.png", "2026-11-14-submitted.png",
+            "2026-11-26-preview.png", "notes.png", "2026-11-01-other.png"];
+        foreach (var name in names)
+            File.WriteAllText(Path.Combine(shots, name), "x");
+        var s = Parse($"screenshots = \"{shots.Replace('\\', '/')}\"\n");
+        Assert.Equal(7, s.KeepScreenshotsDays);
+        var lines = new List<string>();
+        Assert.Equal(3, Runner.PruneScreenshots(s, new DateOnly(2026, 11, 21), lines.Add));   // before 14 Nov
+        Assert.Equal(["2026-11-01-other.png", "2026-11-14-submitted.png", "2026-11-26-preview.png", "notes.png"],
+            Directory.GetFiles(shots).Select(Path.GetFileName).Order());
+        Assert.Equal("screenshots: 3 removed (days before 2026-11-14)", Assert.Single(lines));
+        Assert.Equal(0, Parse("keep_screenshots_days = 0\n").KeepScreenshotsDays);
+        Assert.Throws<PyValueError>(() => Parse("keep_screenshots_days = -1\n"));
+    }
+
+    [Fact]
     public void Every_fifteen_minutes_in_working_hours_by_default()
     {
         var s = Parse();

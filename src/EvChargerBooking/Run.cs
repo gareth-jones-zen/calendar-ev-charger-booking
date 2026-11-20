@@ -176,7 +176,38 @@ public static class Runner
         report.Questions.AddRange(ApplyApprovals(settings, outlook, today, dryRun, log));
         foreach (var question in report.Questions)
             log($"ask: {question}");
+        if (!dryRun)
+            PruneScreenshots(settings, today, log);
         return report;
+    }
+
+    /// <summary>2.2.0: delete the screenshots of days more than keep_screenshots_days past ("2026-11-26-submitted.png",
+    /// "-preview", "-after-submit"). Only files named that way; a file that can't be deleted is left for next time.</summary>
+    public static int PruneScreenshots(Settings settings, DateOnly today, Action<string> log)
+    {
+        if (!Directory.Exists(settings.Screenshots))
+            return 0;
+        var cutoff = today.AddDays(-settings.KeepScreenshotsDays);
+        var removed = 0;
+        foreach (var file in Directory.EnumerateFiles(settings.Screenshots, "*.png"))
+        {
+            var name = System.IO.Path.GetFileName(file);
+            var match = System.Text.RegularExpressions.Regex.Match(name, @"^(\d{4}-\d{2}-\d{2})-(preview|submitted|after-submit)\.png$");
+            if (!match.Success || !DateOnly.TryParseExact(match.Groups[1].Value, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.None, out var day) || day >= cutoff)
+                continue;
+            try
+            {
+                File.Delete(file);
+                removed++;
+            }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+            {
+            }
+        }
+        if (removed > 0)
+            log($"screenshots: {removed} removed (days before {PyTime.Iso(cutoff)})");
+        return removed;
     }
 
     private static void Book(Settings settings, DateOnly day, Report report, Action<string> log, Booker booker, Func<DateTime> now)
