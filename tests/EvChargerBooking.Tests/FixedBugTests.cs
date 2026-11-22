@@ -85,13 +85,13 @@ public sealed class FixedBugTests : IDisposable
             Now = () => new DateTime(2026, 11, 12, 8, 0, 0),
         });
         Assert.Equal(1, code);
-        Assert.Equal(["ev-charger-booking needs a sign-in"], notes);
+        Assert.Equal(["calendar-ev-charger-booking needs a sign-in"], notes);
     }
 
     private sealed class SignedOutGraph : IGraph
     {
         public JsonObject Get(string url, IReadOnlyDictionary<string, string> headers) =>
-            throw new M365Graph.SignInNeededException("No usable sign-in. At a console, run: ev-charger-booking sign-in");
+            throw new M365Graph.SignInNeededException("No usable sign-in. At a console, run: calendar-ev-charger-booking sign-in");
 
         public JsonObject Send(string method, string url, JsonObject? body, IReadOnlyDictionary<string, string> headers) =>
             throw new InvalidOperationException("no writes");

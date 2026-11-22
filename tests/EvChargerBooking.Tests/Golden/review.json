@@ -2,7 +2,7 @@
  {
   "name": "questions",
   "report": {
-   "config": "C:\\x\\ev-charger-booking.toml",
+   "config": "C:\\x\\calendar-ev-charger-booking.toml",
    "questions": [
     "Thu 26 Nov: Travel block says EV but work plan says remote. Book EV?",
     "Fri 27 Nov: request not approved yet – check Facilities' email"
@@ -69,7 +69,7 @@
  {
   "name": "none",
   "report": {
-   "config": "C:\\x\\ev-charger-booking.toml",
+   "config": "C:\\x\\calendar-ev-charger-booking.toml",
    "questions": [],
    "booked": [],
    "failed": [],

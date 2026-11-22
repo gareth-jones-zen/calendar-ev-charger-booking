@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <AssemblyName>ev-charger-booking-background</AssemblyName>
+    <AssemblyName>calendar-ev-charger-booking-background</AssemblyName>
     <RootNamespace>EvChargerBooking</RootNamespace>
     <PublishAot>true</PublishAot>
   </PropertyGroup>

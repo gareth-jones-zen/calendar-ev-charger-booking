@@ -62,7 +62,7 @@ public sealed class M365GraphClient(GraphClient client) : IGraph
     /// <summary>Calendars.ReadWrite (to rename the morning entry) and Mail.Read (the replies).</summary>
     public static readonly IReadOnlyList<string> Scopes = ["Calendars.ReadWrite", "Mail.Read"];
 
-    public const string SignInHint = "At a console, run: ev-charger-booking sign-in";
+    public const string SignInHint = "At a console, run: calendar-ev-charger-booking sign-in";
 
     public GraphClient Client { get; } = client;
 

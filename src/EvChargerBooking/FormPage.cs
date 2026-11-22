@@ -106,7 +106,7 @@ public sealed class FormPage
                     var kind = MicrosoftSignIn.Classify(probe);
                     if (MicrosoftSignIn.NeedsAPerson(kind))
                         throw new FormError($"The form needs a sign-in ({MicrosoftSignIn.Describe(kind)}), and nobody is at this "
-                                            + "window. Run `ev-charger-booking sign-in` at a console.");
+                                            + "window. Run `calendar-ev-charger-booking sign-in` at a console.");
                 }
             }
             catch (CdpException)

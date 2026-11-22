@@ -38,7 +38,7 @@ public sealed class BaseSettingsTests : IDisposable
         }
     }
 
-    private Settings Parse(string text) => Settings.Parse(text, Path.Combine(dir, "ev-charger-booking.toml"), _ => null);
+    private Settings Parse(string text) => Settings.Parse(text, Path.Combine(dir, "calendar-ev-charger-booking.toml"), _ => null);
 
     [Fact]
     public void Shared_settings_and_paths_come_from_the_base()

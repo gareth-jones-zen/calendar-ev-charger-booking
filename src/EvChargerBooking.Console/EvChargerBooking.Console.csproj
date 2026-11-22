@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <AssemblyName>ev-charger-booking</AssemblyName>
+    <AssemblyName>calendar-ev-charger-booking</AssemblyName>
     <RootNamespace>EvChargerBooking</RootNamespace>
     <PublishAot>true</PublishAot>
   </PropertyGroup>

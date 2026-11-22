@@ -9,6 +9,6 @@
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="EvChargerBooking.Tests" />
-    <InternalsVisibleTo Include="ev-charger-booking-parity" />
+    <InternalsVisibleTo Include="calendar-ev-charger-booking-parity" />
   </ItemGroup>
 </Project>

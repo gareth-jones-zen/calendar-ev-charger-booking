@@ -171,7 +171,7 @@ public sealed class DoorTests
     public void The_run_lock_name_is_pythons()
     {
         // win_background.key: sha256(str(path).lower())[:16], so Python's lower-casing (here: no special letters).
-        Assert.Equal("ev-charger-booking-run-" + Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(
+        Assert.Equal("calendar-ev-charger-booking-run-" + Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(
                 "c:\\users\\x\\ev.toml"u8.ToArray()))[..16], Runner.LockName(@"C:\Users\X\ev.toml"));
     }
 }
