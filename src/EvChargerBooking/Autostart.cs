@@ -29,20 +29,40 @@ public static class Autostart
         return (exe, ["--config", PyPath.Resolve(configPath), "run", "--hook", "--scheduled"]);
     }
 
-    /// <summary>Every every_minutes (or daily at daily_at when it's 0) and at logon, as a job stopped after 30 minutes,
-    /// started now.</summary>
-    public static TaskSchedule Schedule(Settings settings) => settings.EveryMinutes > 0
-        ? new() { AtLogon = true, Every = TimeSpan.FromMinutes(settings.EveryMinutes), KeepRunning = false }
-        : new() { AtLogon = true, DailyAt = settings.DailyAt, KeepRunning = false };
+    /// <summary>From [schedule] (the library builds the triggers and records their fingerprint in the task, so
+    /// `autostart status` can tell when the settings change): by default every every_minutes (or daily at daily_at
+    /// when it's 0) and at logon, as a job stopped after 30 minutes, started now.</summary>
+    public static TaskSchedule Schedule(Settings settings) => settings.Schedule.ToTaskSchedule(TaskKind.Job);
 
-    /// <summary>When it's to run: the scheduled run checks this, so the task can simply repeat.</summary>
-    public static bool InHours(Settings settings, DateTime now)
+    /// <summary>When it's to run: the scheduled run checks [schedule]'s hours, days and end_date, so the task can
+    /// simply repeat.</summary>
+    public static bool InHours(Settings settings, DateTime now) => settings.Schedule.IsActive(now);
+
+    /// <summary>The line a scheduled run logs while the settings still use the old top-level schedule keys.</summary>
+    public const string OldScheduleNote =
+        "settings: every_minutes, daily_at, hours and weekdays at the top level are the old form; move them to [schedule] (see the README)";
+
+    /// <summary>"every 15 minutes, 07:00-19:00 Mon-Fri, and at logon": the schedule in words.</summary>
+    public static string Describe(Settings settings)
     {
-        if (settings.EveryMinutes == 0)
-            return true;
-        if (settings.Weekdays && now.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday)
-            return false;
-        var time = now.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture);
-        return string.CompareOrdinal(time, settings.HoursFrom) >= 0 && string.CompareOrdinal(time, settings.HoursTo) < 0;
+        var s = settings.Schedule;
+        var parts = new List<string>();
+        if (s.EveryMinutes is > 0 and var m)
+        {
+            var gate = s.Hours is null ? "" : $", {settings.HoursFrom}-{settings.HoursTo}";
+            if (settings.Weekdays)
+                gate += " Mon-Fri";
+            else if (s.Days is { Count: < 7 } days)
+                gate += " " + string.Join(",", days.OrderBy(d => ((int)d + 6) % 7).Select(d => d.ToString()[..3]));
+            parts.Add($"every {m} minutes{gate}");
+        }
+        else if (s.DailyAt is { } at)
+            parts.Add($"daily at {at}");
+        if (s.AfterUnlockMinutes > 0)
+            parts.Add($"{s.AfterUnlockMinutes} minute(s) after each unlock");
+        if (s.AtLogon)
+            parts.Add("at logon");
+        var text = parts.Count <= 1 ? string.Join("", parts) : string.Join(", ", parts.Take(parts.Count - 1)) + " and " + parts[^1];
+        return s.EndDate is { } end ? $"{text} (until {end:yyyy-MM-dd})" : text;
     }
 }

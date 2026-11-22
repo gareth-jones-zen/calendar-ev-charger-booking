@@ -113,6 +113,25 @@ calendar-ev-charger-booking autostart on|off|status      the scheduled task
 
 `--config <file>` picks a settings file; otherwise `EV_CHARGER_BOOKING_CONFIG`, then `%APPDATA%\calendar-ev-charger-booking\config.toml`. `book --submit` won't request a day twice unless you add `--force`; use it for a one-off day, or to book a day the run asked you about. `book` waits for a run in progress (the same lock), so the two can't request the same day at once.
 
+## When it runs: `[schedule]`
+
+`autostart on` registers the task from background-tools-lib's shared `[schedule]` table (the library's README,
+"[schedule]: the shared scheduling settings", has every key and rule). This tool's defaults, used for any key you
+leave out:
+
+```toml
+[schedule]
+every_minutes = 15        # the task's interval, and at logon (0, with daily_at = "09:00", for once a day)
+hours = "07:00-19:00"     # a scheduled run outside these hours does nothing
+days = "Mon-Fri"          # ...nor on other days
+# at_logon = true, after_unlock_minutes = 0, end_date: as the library describes
+```
+
+`every_minutes` is 0 or 5 to 1440. The task records its schedule; **after changing `[schedule]`, run `autostart on`
+again**: `autostart status` says when the task no longer matches. `every_minutes`, `daily_at`, `hours` and `weekdays`
+at the top level are the old form: still read (each scheduled run logs a line asking to move them), but not together
+with `[schedule]`.
+
 ## Sharing settings with other tools: `base`
 
 Several tools on the same shared library can keep their common settings in one file, named at the top of each
@@ -142,10 +161,11 @@ edge_profile = "..."                    # optional: the tool's Edge profile
 screenshots = "..."                     # optional: where form screenshots go
 keep_screenshots_days = 7               # optional: deleted once their day is this many days past
 after_run = ["powershell", "-File", "hook.ps1"]   # optional: run after each run, with a JSON report on stdin
-every_minutes = 15                      # how often autostart runs it (2.1.0); 0 for once a day at daily_at
+
+[schedule]                              # when the task runs: see "When it runs: [schedule]" above
+every_minutes = 15                      # how often (0 for once a day at daily_at)
 hours = "07:00-19:00"                   # ...only between these times
-weekdays = true                         # ...and only Monday to Friday
-daily_at = "09:00"                      # with every_minutes = 0: when the daily run happens
+days = "Mon-Fri"                        # ...and only on these days
 
 [booking]
 days_ahead = 14                         # how far ahead to look

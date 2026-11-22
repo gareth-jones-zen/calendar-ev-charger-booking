@@ -205,6 +205,8 @@ public static class Cli
         if (args.Scheduled && !Autostart.InHours(settings, host.Now()))
             return 0;   // the task repeats round the clock; this is when it's meant to run (2.1.0)
         var log = Logger.Create(settings.LogFile, !args.Json && !args.Scheduled ? host.LogEcho ?? host.Out : null, clock: host.Now);
+        if (args.Scheduled && settings.ScheduleFromOldKeys)   // the task's runs, so a hand run's output (and parity) is unchanged
+            log(Autostart.OldScheduleNote);
         Report report;
         try
         {
@@ -364,10 +366,7 @@ public static class Cli
                 var settings = Settings.Load(args.Config, host.Env);   // check the settings load before scheduling them
                 var (exe, taskArgs) = Autostart.Command(host.ProgramDir, settings.Path);
                 var command = task.Enable(exe, taskArgs, Path.GetDirectoryName(settings.Path), Autostart.Schedule(settings));
-                var when = settings.EveryMinutes > 0
-                    ? $"every {settings.EveryMinutes} minutes, {settings.HoursFrom}-{settings.HoursTo}{(settings.Weekdays ? " Mon-Fri" : "")},"
-                    : $"daily at {settings.DailyAt}";
-                Print(host.Out, $"Autostart is on: '{Autostart.TaskName}' runs {when} and at logon, and has "
+                Print(host.Out, $"Autostart is on: '{Autostart.TaskName}' runs {Autostart.Describe(settings)}, and has "
                                 + $"started now.\n  {command}\n  log: {settings.LogFile}");
             }
             else if (args.Action == "off")
@@ -382,6 +381,18 @@ public static class Cli
                     Print(host.Out, $"Autostart is on ('{Autostart.TaskName}').");
                     foreach (var key in new[] { "state", "last_run", "last_result", "next_run", "command" })
                         Print(host.Out, $"  {key.Replace('_', ' '),-12} {info.GetValueOrDefault(key, "")}");
+                    Settings? current = null;
+                    try
+                    {
+                        current = Settings.Load(args.Config, host.Env);
+                    }
+                    catch (Exception error) when (error is FileNotFoundException or PyValueError)
+                    {
+                        Print(host.Out, $"  {"schedule",-12} not compared: {error.Message}");
+                    }
+                    if (current is not null
+                        && ScheduleDrift.Advice(ScheduleDrift.Check(info, current.Schedule.Fingerprint(TaskKind.Job)), "calendar-ev-charger-booking") is { } advice)
+                        Print(host.Out, $"  {"schedule",-12} {advice}");
                 }
             }
             return 0;

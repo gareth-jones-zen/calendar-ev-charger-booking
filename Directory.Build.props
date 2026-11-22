@@ -8,7 +8,7 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <!-- The Python version it ports, so the version option says the same. -->
-    <Version>2.3.0</Version>
+    <Version>2.4.0</Version>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <Authors>Gareth Jones</Authors>
     <RepositoryUrl>https://github.com/gareth-jones-zen/calendar-ev-charger-booking</RepositoryUrl>

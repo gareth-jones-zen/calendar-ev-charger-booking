@@ -4,6 +4,7 @@ using PyCompat;
 using ReviewQueue;
 using Tomlyn;
 using Tomlyn.Model;
+using WinBackground;
 
 namespace EvChargerBooking;
 
@@ -144,6 +145,32 @@ public sealed class Settings
     public string HoursFrom { get; set; } = "07:00";
     public string HoursTo { get; set; } = "19:00";
     public bool Weekdays { get; set; } = true;
+
+    /// <summary>When the task runs and when a scheduled run does its work: [schedule] (background-tools-lib's shared
+    /// scheduling settings), or the old top-level every_minutes, daily_at, hours and weekdays. The properties above
+    /// mirror it, for the messages.</summary>
+    public ScheduleSettings Schedule { get; set; } = DefaultSchedule;
+
+    /// <summary>True when the schedule came from the old top-level keys (each scheduled run logs that once).</summary>
+    public bool ScheduleFromOldKeys { get; set; }
+
+    public static readonly IReadOnlySet<DayOfWeek> WeekdaySet = new HashSet<DayOfWeek>
+        { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday };
+
+    /// <summary>Today's behaviour with no settings: every 15 minutes and at logon, working only 07:00-19:00, Mon-Fri.</summary>
+    public static readonly ScheduleSettings DefaultSchedule = FromOldKeys(15, "09:00", "07:00", "19:00", true);
+
+    /// <summary>The old top-level keys, still read as aliases of [schedule]'s.</summary>
+    public static readonly string[] OldScheduleKeys = ["every_minutes", "daily_at", "hours", "weekdays"];
+
+    /// <summary>The old keys as a [schedule]: every every_minutes within hours (Mon-Fri if weekdays), or, with
+    /// every_minutes = 0, daily at daily_at with no hours (as before 2.1.0); at logon either way.</summary>
+    public static ScheduleSettings FromOldKeys(int every, string dailyAt, string from, string to, bool weekdays) => every > 0
+        ? new ScheduleSettings { EveryMinutes = every, Hours = ScheduleSettings.ParseHours(from + "-" + to), Days = weekdays ? WeekdaySet : null }
+        : new ScheduleSettings { EveryMinutes = 0, DailyAt = dailyAt };
+
+    private static string Clock(TimeSpan t) =>
+        t.TotalHours >= 24 ? "24:00" : ((int)t.TotalHours).ToString("00", CultureInfo.InvariantCulture) + ":" + t.Minutes.ToString("00", CultureInfo.InvariantCulture);
     public int DaysAhead { get; set; } = 14;
     public string StartTime { get; set; } = "";
     public double SlotHours { get; set; } = 4;
@@ -273,6 +300,42 @@ public sealed class Settings
             (settings.HoursFrom, settings.HoursTo) = (Time(span[0].Trim(), "hours"), Time(span[1].Trim(), "hours"));
         }
         settings.Weekdays = !raw.ContainsKey("weekdays") || Truthy(raw, "weekdays");
+
+        var oldKeys = OldScheduleKeys.Where(raw.ContainsKey).ToList();
+        if (raw.TryGetValue("schedule", out var scheduleValue))
+        {
+            if (oldKeys.Count > 0)
+                throw new PyValueError($"{path} has {string.Join(", ", oldKeys)} at the top level and a [schedule] table: "
+                                       + "keep only [schedule] (the top-level keys are the old form).");
+            var table = scheduleValue as TomlTable ?? throw new PyValueError($"{path}: schedule must be a [schedule] table.");
+            try
+            {
+                settings.Schedule = ScheduleSettings.Parse(table, DefaultSchedule, TaskKind.Job, $"[schedule] in {path}");
+            }
+            catch (FormatException error)
+            {
+                throw new PyValueError(error.Message);
+            }
+            if (settings.Schedule.EveryMinutes is > 0 and < 5)
+                throw new PyValueError($"every_minutes under [schedule] in {path} should be 0 (daily at daily_at) or 5 to 1440.");
+            var s = settings.Schedule;   // mirrored for the messages
+            settings.EveryMinutes = s.EveryMinutes ?? 0;
+            settings.DailyAt = s.DailyAt ?? settings.DailyAt;
+            (settings.HoursFrom, settings.HoursTo) = s.Hours is var (from, to) ? (Clock(from), Clock(to)) : ("00:00", "24:00");
+            settings.Weekdays = s.Days is { } d && d.Count == 5 && WeekdaySet.All(d.Contains);
+        }
+        else
+        {
+            try
+            {
+                settings.Schedule = FromOldKeys(settings.EveryMinutes, settings.DailyAt, settings.HoursFrom, settings.HoursTo, settings.Weekdays);
+            }
+            catch (FormatException error)
+            {
+                throw new PyValueError($"hours in {path}: {error.Message}");
+            }
+            settings.ScheduleFromOldKeys = oldKeys.Count > 0;
+        }
 
         var booking = Table(raw, "booking");
         var trigger = Table(raw, "trigger");
