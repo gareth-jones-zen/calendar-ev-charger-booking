@@ -33,7 +33,8 @@ public interface IGraph
     JsonObject Get(string url, IReadOnlyDictionary<string, string> headers);
 
     /// <summary>One request with a JSON body sent as Python's json.dumps(body) wrote it. Throws GraphRequestException
-    /// for a status outside 200-299.</summary>
+    /// for a status outside 200-299, and GraphDeliveryUnknownException when a write may or may not have been applied
+    /// (a 5xx, a timeout or a dropped connection after sending): it isn't sent again.</summary>
     JsonObject Send(string method, string url, JsonObject? body, IReadOnlyDictionary<string, string> headers);
 
     /// <summary>Make sure there's a token for the tool's scopes (sign-in).</summary>
@@ -56,7 +57,8 @@ public sealed class ReadOnlyGraph(IGraph inner) : IGraph
 }
 
 /// <summary>The real Graph, through background-tools-lib's M365Graph: the shared sign-in, timeouts, IPv4 first, no
-/// browser when nobody's at the console, and retries as Python's m365-graph did.</summary>
+/// browser when nobody's at the console. Reads are retried (429, 5xx, a dropped connection); the one write, the
+/// rename, is sent once.</summary>
 public sealed class M365GraphClient(GraphClient client) : IGraph
 {
     /// <summary>Calendars.ReadWrite (to rename the morning entry) and Mail.Read (the replies).</summary>
@@ -92,8 +94,11 @@ public sealed class M365GraphClient(GraphClient client) : IGraph
         if (method == "GET")
             return Get(url, headers);
         var bytes = body is null ? null : Encoding.UTF8.GetBytes(PyJson.Dump(body));
-        // A PATCH is repeatable, so it retries as reads do (and as Python's did).
-        var reply = Client.SendRawAsync(new HttpMethod(method), url, bytes, "application/json", GraphRetryPolicy.Read, Scopes, headers)
+        // Sent once (GraphRetryPolicy.Write): only a 429 or a request that never connected is sent again. A 5xx, a
+        // timeout or a dropped connection after sending throws GraphDeliveryUnknownException: the rename may have been
+        // applied, and on an entry with attendees each PATCH sends them an update. The next run re-reads the entry
+        // and renames it only if it still needs it, so that's the retry.
+        var reply = Client.SendRawAsync(new HttpMethod(method), url, bytes, "application/json", GraphRetryPolicy.Write, Scopes, headers)
             .GetAwaiter().GetResult();
         if (!reply.IsSuccess)
             throw new GraphRequestException(reply.Status, method, url, Encoding.UTF8.GetString(reply.Body));

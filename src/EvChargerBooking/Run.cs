@@ -111,7 +111,19 @@ public static class Runner
                     continue;
                 }
                 var id = found["id"] ?? throw new PyKeyError("id");
-                outlook.Rename(Py.Str(id), subject, rules.SetLocation ? reply.Point : null);
+                try
+                {
+                    outlook.Rename(Py.Str(id), subject, rules.SetLocation ? reply.Point : null);
+                }
+                catch (M365Graph.GraphDeliveryUnknownException error)
+                {
+                    // Sent once: it may have been applied. Not resent; the next run re-reads the entry and renames it
+                    // only if it still needs it. The other days carry on.
+                    log($"{label}: renaming the {settings.Label} may not have worked (not sent again): {error.Message}");
+                    questions.Add($"{label}: renaming the {settings.Label} to \"{subject}\" may or may not have worked "
+                                  + "(Microsoft didn't confirm). Check the entry; the next run renames it only if it still needs it.");
+                    continue;
+                }
                 log($"updated {label} {settings.Label} -> {subject}");
             }
         }

@@ -25,7 +25,7 @@ For each day from tomorrow (weekdays only by default):
 
 With `work_plan = ""` the work plan isn't read, and every day whose entry asks is booked.
 
-**It also asks you when:** a booking fails; a request is declined; or the next working day's request still isn't approved.
+**It also asks you when:** a booking fails; a request is declined; the next working day's request still isn't approved; or Microsoft didn't confirm a rename (below, under Notifications).
 
 **A submission is a request, not a booking.** Someone approves it, and the approval email is what puts the charge point in your calendar.
 
@@ -261,6 +261,8 @@ With a `[review]` section, the same runs (`run --hook`, not a dry run) also put 
 ## Notifications
 
 A scheduled run notifies only when something needs you: questions, a sign-in needed, or the calendar couldn't be read. **Since 2.1.0 it runs every 15 minutes, so it doesn't repeat itself:** each question is notified once (and again only if it goes away and comes back), a sign-in on the first run that needs one, and any other failure on the third run in a row (not again until a run works). What's been notified is kept beside the state file, as `<state>.notified.json`. If the approval emails can't all be read, the approvals read before the problem are still saved, and the problem is a question. A run that books and renames without trouble is silent; `status` and the log say what it did.
+
+**Graph reads are retried** (a throttle, a 5xx, a dropped connection). **The rename is sent once**: only a throttle (429) or a request that never connected is sent again, because a rename that may have reached Microsoft could send attendees a second update. If Graph answers a rename with a 5xx, times out or drops the connection after sending, the rename may or may not have happened: it isn't resent, that day is a question ("may or may not have worked ... check the entry"), and the other days carry on. The next run re-reads the entry and renames it only if it still needs it, so the question clears itself once the entry is right.
 
 ## Where things are
 
